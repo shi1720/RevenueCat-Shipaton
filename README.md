@@ -8,7 +8,7 @@
 
 **[Open the live app](https://unpause-studio.web.app)** · [Privacy](https://unpause-studio.web.app/privacy) · [Terms](https://unpause-studio.web.app/terms) · [Support](https://unpause-studio.web.app/support)
 
-The hosted app includes real Firebase email/password account integration. Projects and photos remain local to your device; accounts do not sync them. **101 unit tests and 30 browser scenarios pass.** Payments are not enabled yet. The existing Android preview was compiled and tested on an emulator before the latest Firebase integration; a refreshed native binary and physical-device account/billing checks remain separate release evidence. iOS source bundles successfully, but no signed iOS build or store publication is claimed.
+The hosted app includes real Firebase email/password account integration. Projects and photos remain local to your device; accounts do not sync them. **101 unit tests and 30 browser scenarios pass.** Payments are not enabled yet. The refreshed Android preview includes Firebase accounts and passed native sign-in, offline restart persistence, and account deletion on an emulator. Physical-device account/billing checks remain release gates. iOS source bundles successfully, but no signed iOS build or store publication is claimed.
 
 ## Why this exists
 
@@ -18,11 +18,11 @@ Unpause keeps that context. Its signature loop is **choose a little time → rea
 
 ![Unpause dashboard with an illustrative sample studio](artifacts/screenshots/desktop-dashboard.png)
 
-*Actual web UI with clearly labeled sample projects. Native phone screenshots and a silent walkthrough are in the [submission kit](artifacts/submission/README.md).*
+*Actual web UI with clearly labeled sample projects. Watch the [public narrated native demo](https://www.youtube.com/watch?v=jXpOlvDShRY), or open the [submission kit](artifacts/submission/README.md) for screenshots, captions, the deck, and the PDF brief.*
 
 ## Try it
 
-An installable Android preview is available in [GitHub Releases](https://github.com/shi1720/RevenueCat-Shipaton/releases). It runs offline without a development server and uses a test signing certificate. Its bundled account capabilities depend on the release version; new source builds support Firebase accounts. Purchases still require owner-controlled store configuration. The repository and its releases retain their existing private visibility.
+An installable Android preview is available in [GitHub Releases](https://github.com/shi1720/RevenueCat-Shipaton/releases). It runs offline without a development server and uses a test signing certificate. Preview 2 includes real Firebase accounts and encrypted native sessions. Purchases still require owner-controlled store configuration. The repository and its releases retain their existing private visibility.
 
 Requires Node.js 22 LTS and npm. No API key is needed for the local studio.
 

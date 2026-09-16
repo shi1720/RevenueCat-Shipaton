@@ -2,6 +2,16 @@
 
 Recorded September 16, 2026. Passing a source test, running a native preview, and publishing a store release are different results.
 
+## Firebase launch verification update
+
+The final Firebase preview passes **101 unit/service tests and 30 browser scenarios**, plus TypeScript, formatting, web/iOS/Android exports, and a targeted secret scan. Real hosted tests cover accounts and the full project workflow at 390px and 1280px. The final native APK includes Firebase sign-in, encrypted session persistence through an offline restart, and successful account deletion. All 41 recorded source hashes match the committed source. See [iteration-two review](../review-iteration2.md), [hosted evidence](firebase-hosting.md), and [native evidence](native-build-evidence.md).
+
+All five hosted fonts now return actual TTF binaries and load correctly, including in a browser with the earlier broken font responses cached. The deploy script rejects missing account configuration, a mismatched Firebase project, and stale exports before upload.
+
+Firebase accepted password-reset requests for an existing test identity, but no matching email was found in the authorized mailbox during the test window. Delivery and link completion remain unverified. Temporary identities were removed. Real purchases, production signing, physical Galaxy checks, and store publication remain pending.
+
+## Earlier baseline and stress evidence
+
 | Layer | Result | Scope and limits |
 | --- | --- | --- |
 | TypeScript | Passed | `npm run typecheck` across app, services, tests, and configuration. |

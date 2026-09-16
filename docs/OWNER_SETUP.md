@@ -23,17 +23,15 @@ The app’s Galaxy package is **`com.shivamgupta.unpause.galaxy`**. Do not regis
 
 Verification is not guaranteed. The entry needs a published US-accessible app by **September 30, 2026, 11:45 p.m. PDT / October 1, 12:15 p.m. IST**. See [official-rules research](research/hackathon.md).
 
-## 2. Connect optional accounts
+## 2. Use the configured Firebase accounts
 
-Create an owner-controlled project at [Supabase](https://supabase.com/dashboard). The detailed guide is [accounts-and-billing.md](release/accounts-and-billing.md). Set the project URL and **publishable/anon key** locally:
+The deployed app at [unpause-studio.web.app](https://unpause-studio.web.app) already uses Firebase Authentication. Real hosted signup, session persistence, login, logout, and account deletion passed. Native sign-in and encrypted offline session persistence also passed on the final Android emulator build. Account deletion preserves local projects.
 
-```sh
-cp .env.example .env.local
-```
+The four public Firebase configuration fields are already in ignored `.env.local` on this machine. Do not overwrite this file with the empty template. A fresh checkout should populate those fields from the dedicated Firebase project's web app settings. See [Firebase account setup](release/firebase-accounts.md).
 
-Fill `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`. Configure email confirmation, password-reset URLs, and allowed redirects for `unpause://auth/callback` and your exact web origin. Deploy the included `delete-account` function. Never put a service-role key in an Expo variable.
+Password-reset requests are accepted by Firebase, but mailbox delivery and reset-link completion were not verified during the test window. Resolve that delivery check before treating recovery as release-certified. Accounts do not synchronize notes or photos.
 
-The account is for identity and purchases. It does not upload or synchronize project content. Test signup, confirmation, login, reset, logout, and account deletion with your own disposable test account before release.
+Supabase remains an optional alternative provider. Its setup guide only applies if you deliberately choose that fallback instead of Firebase. Switching providers does not migrate account or purchase identities.
 
 ## 3. Connect the real paid upgrade
 
@@ -44,7 +42,7 @@ In [RevenueCat](https://app.revenuecat.com/), create your project and a Galaxy a
 - Current offering: `default`, containing the built-in **Lifetime** package (`$rc_lifetime`).
 - Proposed launch price: **$19.99 once**, subject to your decision and each store’s localized pricing.
 - Set `EXPO_PUBLIC_REVENUECAT_GALAXY_KEY` and `EXPO_PUBLIC_ANDROID_STORE=galaxy`.
-- When billing is enabled, configure the deletion function’s `REVENUECAT_ENABLED` and server-side `REVENUECAT_SECRET_KEY` through Supabase’s secrets dashboard.
+- Before enabling billing with Firebase accounts, deploy and verify the secure account/purchase-data deletion backend described in [Firebase accounts](release/firebase-accounts.md), then set `EXPO_PUBLIC_ACCOUNT_DELETION_URL`. The app refuses incomplete deletion. Keep RevenueCat administrative credentials on that backend only. The older Supabase function is for the Supabase identity fallback, not Firebase tokens.
 
 For iOS and Google Play, repeat with those stores’ own products, app identifiers, and public SDK keys. Never substitute a private API key or simulated `test_` key.
 
@@ -52,7 +50,7 @@ A physical Samsung Galaxy device signed into a Samsung account is required for G
 
 ## 4. Publish support and policy pages
 
-Provide a working support contact and owner-controlled public HTTPS privacy, terms, and support pages. The app includes accurate in-app policy text. Publish reviewed copies and set `EXPO_PUBLIC_PRIVACY_URL`, `EXPO_PUBLIC_TERMS_URL`, and `EXPO_PUBLIC_SUPPORT_URL`. Verify the store data-disclosure forms against every enabled SDK. Local project storage does not mean account/purchase services collect no data.
+Public [privacy](https://unpause-studio.web.app/privacy), [terms](https://unpause-studio.web.app/terms), and [support](https://unpause-studio.web.app/support) pages are deployed and linked in the app. The guarded [deployment script](../scripts/deploy-firebase.mjs) keeps these URLs configured. Verify the store data-disclosure forms against every enabled SDK. Local project storage does not mean account/purchase services collect no data.
 
 ## 5. Make the production binary
 
@@ -62,12 +60,12 @@ Follow [build.md](release/build.md). Set up your own Expo project and signing cr
 
 Test the exact signed binary before uploading. Confirm purchase, cancellation, restore, app restart, large backup import, photos, permissions, rotation/resizing, and account deletion on actual target hardware. Preserve the signing key for future updates.
 
-## 6. Record and submit
+## 6. Complete the store evidence and submit
 
-The [verbatim script and shot list](submission.md), [editable deck](../artifacts/submission/Unpause-pitch-final.pptx), and [PDF brief](../artifacts/submission/Unpause-brief.pdf) are prepared. A silent native emulator walkthrough and screenshots are reference material; label their origin honestly. Record the final demo on the installed release build, add your narration and accurate captions, and keep the final video under two minutes.
+The [public narrated demo](https://www.youtube.com/watch?v=jXpOlvDShRY), captions, native screenshots, icon, [editable deck](../artifacts/submission/Unpause-pitch-final.pptx), and [PDF brief](../artifacts/submission/Unpause-brief.pdf) are finished. The video is under two minutes and labels synthetic narration and Android emulator footage. You do not need to record a voiceover to use this version.
 
-Use the provided store listing copy. Replace any pending checkout shot with a real configured flow only after testing it. Upload the public video to YouTube/Vimeo, supply the approved store URL, RevenueCat project ID, and a tested judge-access mechanism, and submit the Devpost entry. Do not claim user traction or revenue unless you have actual evidence.
+The [Devpost draft](https://devpost.com/submit-to/29969-revenuecat-shipaton-2026/manage/submissions/1185565-unpause/additional-info/edit) has its story, media, testing instructions, and supported award descriptions saved. Final validation currently requires the actual RevenueCat project ID. Store publication and real monetization are also eligibility requirements even though the form does not require a store URL to save the draft.
 
-## What to share for the next integration pass
+Finish the RevenueCat/Samsung accounts in their prepared browser tabs. Samsung requires your date of birth, password, and subsequent verification; RevenueCat requires a password. Browser credential rules require you to complete new password entry yourself. Then connect real products, verify purchases/restores and judge access, supply the approved store URL and project ID, and finish the entry. Update the preview's pending-release statements only when those events have happened.
 
-You do not need to paste secrets into a conversation. Fill `.env.local` on this machine, configure server secrets in the provider dashboards, and report that setup is ready. The next pass can then verify real authentication and store configuration. Signing, business verification, physical Galaxy testing, and your voice recording require your direct participation.
+Use genuine identity, business, and payout information for seller verification. Do not paste secrets into a conversation: use local environment files and provider secret stores. Physical Galaxy testing and store review remain necessary. The exact current state is recorded in [launch status](release/launch-status-2026-09-16.md).
