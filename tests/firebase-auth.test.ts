@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   platform: { OS: "web" },
   user: {
@@ -61,6 +61,8 @@ beforeEach(() => {
     "REVENUECAT_ANDROID_KEY",
     "REVENUECAT_GALAXY_KEY",
     "REVENUECAT_WEB_KEY",
+    "REVENUECAT_TEST_STORE",
+    "REVENUECAT_TEST_KEY",
     "ACCOUNT_DELETION_URL",
   ])
     vi.stubEnv(`EXPO_PUBLIC_${key}`, "");
@@ -70,6 +72,10 @@ beforeEach(() => {
   mocks.initializeAuth.mockReturnValue(mocks.instance);
   mocks.create.mockResolvedValue({ user: mocks.user });
   mocks.signIn.mockResolvedValue({ user: mocks.user });
+});
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 function configure() {
   vi.stubEnv("EXPO_PUBLIC_FIREBASE_API_KEY", "public-api-key");
@@ -178,41 +184,193 @@ describe("Firebase account facade", () => {
     await auth.deleteAccount();
     expect(mocks.deleteUser).toHaveBeenCalledWith(mocks.user);
   });
-  it("blocks incomplete purchase-profile deletion and accepts only verified server success", async () => {
+  it.each(["web", "sandbox"])(
+    "blocks incomplete %s purchase-profile deletion and accepts only verified server success",
+    async (mode) => {
+      configure();
+      if (mode === "web")
+        vi.stubEnv("EXPO_PUBLIC_REVENUECAT_WEB_KEY", "rcb_public");
+      else {
+        vi.stubEnv("EXPO_PUBLIC_REVENUECAT_TEST_STORE", "true");
+        vi.stubEnv("EXPO_PUBLIC_REVENUECAT_TEST_KEY", "test_public");
+      }
+      const auth = await import("../src/services/auth");
+      await expect(auth.deleteAccount()).rejects.toThrow(
+        "secure purchase-data deletion service",
+      );
+      expect(mocks.deleteUser).not.toHaveBeenCalled();
+      vi.stubEnv(
+        "EXPO_PUBLIC_ACCOUNT_DELETION_URL",
+        "https://example.com/delete-account",
+      );
+      mocks.user.getIdToken.mockResolvedValue("test-id-token");
+      const request = vi.fn().mockResolvedValue({
+        ok: false,
+        json: async () => ({ deleted: true }),
+      });
+      vi.stubGlobal("fetch", request);
+      await expect(auth.deleteAccount()).rejects.toThrow(
+        "could not be deleted",
+      );
+      expect(mocks.signOut).not.toHaveBeenCalled();
+      for (const [status, message] of [
+        [202, "still processing"],
+        [401, "sign out and sign in again"],
+        [429, "wait a minute"],
+      ] as const) {
+        request.mockResolvedValue({
+          ok: status === 202,
+          status,
+          json: async () => ({ deleted: false }),
+        });
+        await expect(auth.deleteAccount()).rejects.toThrow(message);
+        expect(mocks.signOut).not.toHaveBeenCalled();
+      }
+      request.mockResolvedValue({
+        ok: true,
+        json: async () => ({ deleted: true }),
+      });
+      await auth.deleteAccount();
+      expect(request).toHaveBeenLastCalledWith(
+        "https://example.com/delete-account",
+        expect.objectContaining({
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer test-id-token",
+          },
+          body: '{"confirmation":"DELETE_MY_ACCOUNT"}',
+        }),
+      );
+      expect(mocks.signOut).toHaveBeenCalledWith(mocks.instance);
+      vi.unstubAllGlobals();
+    },
+  );
+  it("uses the configured backend without local billing keys for purchases made on another platform", async () => {
     configure();
-    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_WEB_KEY", "rcb_public");
-    const auth = await import("../src/services/auth");
-    await expect(auth.deleteAccount()).rejects.toThrow(
-      "secure purchase-data deletion service",
-    );
-    expect(mocks.deleteUser).not.toHaveBeenCalled();
     vi.stubEnv(
       "EXPO_PUBLIC_ACCOUNT_DELETION_URL",
-      "https://example.com/delete-account",
+      "https://example.com/delete",
     );
-    mocks.user.getIdToken.mockResolvedValue("test-id-token");
+    mocks.user.getIdToken.mockResolvedValue("cross-platform-token");
     const request = vi
       .fn()
-      .mockResolvedValue({ ok: false, json: async () => ({ deleted: true }) });
+      .mockResolvedValue(
+        new Response(JSON.stringify({ deleted: true }), { status: 200 }),
+      );
     vi.stubGlobal("fetch", request);
-    await expect(auth.deleteAccount()).rejects.toThrow("could not be deleted");
-    expect(mocks.signOut).not.toHaveBeenCalled();
-    request.mockResolvedValue({
-      ok: true,
-      json: async () => ({ deleted: true }),
-    });
+    const auth = await import("../src/services/auth");
     await auth.deleteAccount();
-    expect(request).toHaveBeenLastCalledWith(
-      "https://example.com/delete-account",
-      expect.objectContaining({
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-id-token",
-        },
-        body: '{"confirmation":"DELETE_MY_ACCOUNT"}',
-      }),
+    expect(request).toHaveBeenCalledOnce();
+    expect(mocks.deleteUser).not.toHaveBeenCalled();
+    expect(mocks.signOut).toHaveBeenCalledOnce();
+  });
+  it.each(["network", "unreadable success"])(
+    "replays the original token after a lost %s response when Firebase can no longer refresh it",
+    async (failure) => {
+      configure();
+      vi.stubEnv(
+        "EXPO_PUBLIC_ACCOUNT_DELETION_URL",
+        "https://example.com/delete",
+      );
+      mocks.user.getIdToken
+        .mockResolvedValueOnce("original-token")
+        .mockRejectedValue({ code: "auth/user-not-found" });
+      const request = vi.fn();
+      if (failure === "network")
+        request.mockRejectedValueOnce(new TypeError("Connection lost"));
+      else
+        request.mockResolvedValueOnce(
+          new Response("incomplete", { status: 200 }),
+        );
+      request.mockResolvedValueOnce(
+        new Response(JSON.stringify({ deleted: true }), { status: 200 }),
+      );
+      vi.stubGlobal("fetch", request);
+      const auth = await import("../src/services/auth");
+      await expect(auth.deleteAccount()).rejects.toThrow();
+      expect(mocks.signOut).not.toHaveBeenCalled();
+      await auth.deleteAccount();
+      expect(mocks.user.getIdToken).toHaveBeenCalledOnce();
+      expect(
+        request.mock.calls.map((call) => call[1].headers.Authorization),
+      ).toEqual(["Bearer original-token", "Bearer original-token"]);
+      expect(mocks.signOut).toHaveBeenCalledOnce();
+    },
+  );
+  it("expires an ambiguous deletion retry after five minutes", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-16T00:00:00Z"));
+    configure();
+    vi.stubEnv(
+      "EXPO_PUBLIC_ACCOUNT_DELETION_URL",
+      "https://example.com/delete",
     );
-    expect(mocks.signOut).toHaveBeenCalledWith(mocks.instance);
-    vi.unstubAllGlobals();
+    mocks.user.getIdToken
+      .mockResolvedValueOnce("old-token")
+      .mockRejectedValue({ code: "auth/user-not-found" });
+    const request = vi.fn().mockRejectedValue(new TypeError("Connection lost"));
+    vi.stubGlobal("fetch", request);
+    const auth = await import("../src/services/auth");
+    await expect(auth.deleteAccount()).rejects.toThrow();
+    vi.advanceTimersByTime(5 * 60 * 1000);
+    await expect(auth.deleteAccount()).rejects.toThrow();
+    expect(mocks.user.getIdToken).toHaveBeenCalledTimes(2);
+    expect(request).toHaveBeenCalledOnce();
+    expect(mocks.signOut).not.toHaveBeenCalled();
+  });
+  it("does not replay another account's token after the active identity changes", async () => {
+    configure();
+    vi.stubEnv(
+      "EXPO_PUBLIC_ACCOUNT_DELETION_URL",
+      "https://example.com/delete",
+    );
+    mocks.user.getIdToken.mockResolvedValue("first-token");
+    const request = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("Connection lost"))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ deleted: true }), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", request);
+    const auth = await import("../src/services/auth");
+    await expect(auth.deleteAccount()).rejects.toThrow();
+    const secondUser = {
+      uid: "second-user",
+      getIdToken: vi.fn().mockResolvedValue("second-token"),
+    };
+    mocks.instance.currentUser = secondUser;
+    await auth.deleteAccount();
+    expect(secondUser.getIdToken).toHaveBeenCalledOnce();
+    expect(request.mock.calls[1][1].headers.Authorization).toBe(
+      "Bearer second-token",
+    );
+  });
+  it("invalidates a retry after authentication rejection", async () => {
+    configure();
+    vi.stubEnv(
+      "EXPO_PUBLIC_ACCOUNT_DELETION_URL",
+      "https://example.com/delete",
+    );
+    mocks.user.getIdToken
+      .mockResolvedValueOnce("rejected-token")
+      .mockResolvedValueOnce("new-token");
+    const request = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ deleted: false }), { status: 401 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ deleted: true }), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", request);
+    const auth = await import("../src/services/auth");
+    await expect(auth.deleteAccount()).rejects.toThrow(
+      "sign out and sign in again",
+    );
+    await auth.deleteAccount();
+    expect(mocks.user.getIdToken).toHaveBeenCalledTimes(2);
+    expect(request.mock.calls[1][1].headers.Authorization).toBe(
+      "Bearer new-token",
+    );
   });
 });

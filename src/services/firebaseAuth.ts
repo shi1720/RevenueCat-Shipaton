@@ -14,6 +14,12 @@ export const firebaseConfigured = Object.values(config).every(Boolean);
 let auth: sdk.Auth | undefined;
 let nativePersistence: sdk.Persistence | undefined;
 let nativeReady: Promise<sdk.Auth> | undefined;
+// Memory-only retry state. A lost deletion response cannot be recovered by
+// refreshing credentials for a Firebase user that the server already deleted.
+let pendingDeletion:
+  | { user: sdk.User; endpoint: string; token: string; expiresAt: number }
+  | undefined;
+const deletionRetryWindowMs = 5 * 60 * 1000;
 
 function service(): sdk.Auth {
   if (!firebaseConfigured)
@@ -123,6 +129,7 @@ export async function signUp(email: string, password: string) {
   const result = await run(() =>
     sdk.createUserWithEmailAndPassword(instance, email, password),
   );
+  pendingDeletion = undefined;
   return {
     session: session(result.user),
     user: { id: result.user.uid, email: result.user.email },
@@ -133,6 +140,7 @@ export async function signIn(email: string, password: string) {
   const result = await run(() =>
     sdk.signInWithEmailAndPassword(instance, email, password),
   );
+  pendingDeletion = undefined;
   return {
     session: session(result.user),
     user: { id: result.user.uid, email: result.user.email },
@@ -140,6 +148,7 @@ export async function signIn(email: string, password: string) {
 }
 export async function signOut(): Promise<void> {
   await run(() => sdk.signOut(service()));
+  pendingDeletion = undefined;
 }
 export async function getSession(): Promise<Session | null> {
   const instance = await readyService();
@@ -180,16 +189,39 @@ export async function deleteAccount(): Promise<void> {
     process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY ||
     process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY ||
     process.env.EXPO_PUBLIC_REVENUECAT_GALAXY_KEY ||
-    process.env.EXPO_PUBLIC_REVENUECAT_WEB_KEY,
+    process.env.EXPO_PUBLIC_REVENUECAT_WEB_KEY ||
+    (process.env.EXPO_PUBLIC_REVENUECAT_TEST_STORE === "true" &&
+      process.env.EXPO_PUBLIC_REVENUECAT_TEST_KEY),
   );
-  if (billingEnabled) {
-    const endpoint = process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL?.trim();
+  const endpoint = process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL?.trim();
+  // Accounts are shared across platforms. Even a free web build must clean up
+  // a purchase profile that the same account created in a native app.
+  if (endpoint || billingEnabled) {
     if (!endpoint || new URL(endpoint).protocol !== "https:") {
       throw new Error(
         "Account deletion needs the secure purchase-data deletion service. Contact support to delete your account and purchase profile.",
       );
     }
-    const token = await run(() => user.getIdToken(true));
+    if (
+      !pendingDeletion ||
+      pendingDeletion.user !== user ||
+      pendingDeletion.endpoint !== endpoint ||
+      pendingDeletion.expiresAt <= Date.now()
+    ) {
+      pendingDeletion = undefined;
+      const token = await run(() => user.getIdToken(true));
+      if (service().currentUser !== user)
+        throw new Error(
+          "Your account changed. Retry from the current account.",
+        );
+      pendingDeletion = {
+        user,
+        endpoint,
+        token,
+        expiresAt: Date.now() + deletionRetryWindowMs,
+      };
+    }
+    const { token } = pendingDeletion;
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -199,6 +231,30 @@ export async function deleteAccount(): Promise<void> {
       body: JSON.stringify({ confirmation: "DELETE_MY_ACCOUNT" }),
     });
     const result: unknown = await response.json().catch(() => null);
+    // A definite client/authentication rejection needs a fresh operation.
+    // Network failures, malformed success responses and provider failures keep
+    // the same token available for the server's bounded durable receipt replay.
+    if (
+      response.status >= 400 &&
+      response.status < 500 &&
+      response.status !== 429
+    )
+      pendingDeletion = undefined;
+    if (response.status === 202) {
+      throw new Error(
+        "Purchase profile cleanup is still processing. Wait a few seconds and try deleting your account again.",
+      );
+    }
+    if (response.status === 401) {
+      throw new Error(
+        "Please sign out and sign in again before deleting your account.",
+      );
+    }
+    if (response.status === 429) {
+      throw new Error(
+        "Too many deletion attempts. Please wait a minute and try again.",
+      );
+    }
     if (
       !response.ok ||
       !result ||
@@ -209,6 +265,8 @@ export async function deleteAccount(): Promise<void> {
       throw new Error(
         "Your account could not be deleted. Please try again while online or contact support.",
       );
+    if (service().currentUser !== user)
+      throw new Error("Your account changed. Refresh the current account.");
     await signOut();
     return;
   }

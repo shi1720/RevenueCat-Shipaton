@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   platform: { OS: "ios" },
-  constants: { appOwnership: null as string | null },
+  constants: {
+    appOwnership: null as string | null,
+    expoConfig: { extra: { revenueCatTestStore: false } },
+  },
   store: new Map<string, string>(),
   failWrite: "",
   generation: 0,
@@ -87,12 +90,15 @@ beforeEach(() => {
     "REVENUECAT_ANDROID_KEY",
     "REVENUECAT_GALAXY_KEY",
     "REVENUECAT_WEB_KEY",
+    "REVENUECAT_TEST_STORE",
+    "REVENUECAT_TEST_KEY",
     "ANDROID_STORE",
   ]) {
     vi.stubEnv(`EXPO_PUBLIC_${name}`, "");
   }
   mocks.platform.OS = "ios";
   mocks.constants.appOwnership = null;
+  mocks.constants.expoConfig.extra.revenueCatTestStore = false;
   mocks.store.clear();
   mocks.failWrite = "";
   mocks.generation = 0;
@@ -375,4 +381,104 @@ describe("real-store lifetime billing", () => {
     ).rejects.toThrow("Sign in");
     expect(mocks.purchases.purchasePackage).not.toHaveBeenCalled();
   });
+});
+
+describe("internal RevenueCat Test Store", () => {
+  const testKey = "test_internal_fixture";
+  const testActive = {
+    entitlements: {
+      active: {
+        studio: { isActive: true, expirationDate: null, store: "TEST_STORE" },
+      },
+    },
+  };
+  function enable() {
+    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_TEST_STORE", "true");
+    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_TEST_KEY", testKey);
+    mocks.constants.expoConfig.extra.revenueCatTestStore = true;
+  }
+  it("does not activate from a dedicated test key alone", async () => {
+    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_TEST_KEY", testKey);
+    const billing = await import("../src/services/billing");
+    expect(billing.billingSandbox).toBe(false);
+    await expect(billing.initializeBilling()).rejects.toThrow("not configured");
+    expect(mocks.purchases.configure).not.toHaveBeenCalled();
+  });
+  it("requires the internal manifest in addition to the opt-in flag", async () => {
+    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_TEST_STORE", "true");
+    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_TEST_KEY", testKey);
+    const billing = await import("../src/services/billing");
+    await expect(billing.initializeBilling()).rejects.toThrow(
+      "internal native preview",
+    );
+    expect(mocks.purchases.configure).not.toHaveBeenCalled();
+  });
+  it("bypasses the Galaxy adapter and reads actual SDK entitlements", async () => {
+    enable();
+    mocks.platform.OS = "android";
+    vi.stubEnv("EXPO_PUBLIC_ANDROID_STORE", "galaxy");
+    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_GALAXY_KEY", "galaxy_fixture");
+    const billing = await import("../src/services/billing");
+    await billing.initializeBilling("sandbox-account");
+    expect(billing.billingSandbox).toBe(true);
+    expect(mocks.purchases.configure).toHaveBeenCalledExactlyOnceWith({
+      apiKey: testKey,
+      appUserID: "sandbox-account",
+    });
+    expect(await billing.getStudioStatus()).toBe(false);
+    mocks.purchases.getOfferings.mockResolvedValue({
+      current: { availablePackages: [lifetime] },
+    });
+    expect(await billing.getStudioPackages()).toEqual([lifetime]);
+    mocks.purchases.purchasePackage.mockResolvedValue({
+      customerInfo: inactive,
+    });
+    await expect(
+      billing.purchaseStudio(
+        lifetime as unknown as import("react-native-purchases").PurchasesPackage,
+      ),
+    ).rejects.toThrow("not active yet");
+    mocks.purchases.purchasePackage.mockResolvedValue({
+      customerInfo: testActive,
+    });
+    expect(
+      await billing.purchaseStudio(
+        lifetime as unknown as import("react-native-purchases").PurchasesPackage,
+      ),
+    ).toBe(true);
+    mocks.purchases.restorePurchases.mockResolvedValue(testActive);
+    expect(await billing.restoreStudio()).toBe(true);
+    expect(mocks.purchases.restorePurchases).toHaveBeenCalledOnce();
+  });
+  it("rejects a production key in sandbox mode", async () => {
+    enable();
+    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_TEST_KEY", "appl_fixture");
+    const billing = await import("../src/services/billing");
+    await expect(billing.initializeBilling()).rejects.toThrow(
+      "Test Store SDK key",
+    );
+    expect(mocks.purchases.configure).not.toHaveBeenCalled();
+  });
+  it("keeps internal Test Store checkout off the public web app", async () => {
+    enable();
+    mocks.platform.OS = "web";
+    const billing = await import("../src/services/billing");
+    await expect(billing.initializeBilling()).rejects.toThrow(
+      "internal native preview",
+    );
+    expect(mocks.purchases.configure).not.toHaveBeenCalled();
+  });
+});
+
+it("never treats a Test Store entitlement as production Studio ownership", async () => {
+  vi.stubEnv("EXPO_PUBLIC_REVENUECAT_IOS_KEY", "appl_public");
+  mocks.purchases.getCustomerInfo.mockResolvedValue({
+    entitlements: {
+      active: {
+        studio: { isActive: true, expirationDate: null, store: "TEST_STORE" },
+      },
+    },
+  });
+  const billing = await import("../src/services/billing");
+  expect(await billing.getStudioStatus()).toBe(false);
 });

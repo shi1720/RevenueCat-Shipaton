@@ -13,3 +13,8 @@ minimum_password_length = 10
 [auth.email]
 enable_signup = true
 enable_confirmations = true
+
+[functions.delete-firebase-account]
+# Firebase Admin verifies the Firebase ID token, including revocation.
+# The Supabase gateway must not interpret it as a Supabase JWT.
+verify_jwt = false

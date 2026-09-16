@@ -96,6 +96,14 @@ export function validateReleaseEnvironment(
         : store === "galaxy"
           ? "EXPO_PUBLIC_REVENUECAT_GALAXY_KEY"
           : "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY";
+  if (value("EXPO_PUBLIC_REVENUECAT_TEST_STORE") === "true")
+    failures.push(
+      "EXPO_PUBLIC_REVENUECAT_TEST_STORE: internal Test Store mode cannot be released.",
+    );
+  if (value("EXPO_PUBLIC_REVENUECAT_TEST_KEY"))
+    failures.push(
+      "EXPO_PUBLIC_REVENUECAT_TEST_KEY: remove the internal Test Store key from production builds.",
+    );
   const billingKey = requireValue(keyName);
   if (billingKey.startsWith("test_"))
     failures.push(
@@ -123,6 +131,16 @@ export function validateReleaseEnvironment(
   for (const [name, raw] of Object.entries(env)) {
     if (!name.startsWith("EXPO_PUBLIC_") || typeof raw !== "string" || !raw)
       continue;
+    if (/^EXPO_PUBLIC_REVENUECAT_.*_KEY$/.test(name)) {
+      if (raw.trim().startsWith("test_"))
+        failures.push(
+          `${name}: Test Store keys cannot be released on any platform.`,
+        );
+      if (raw.trim().startsWith("sk_"))
+        failures.push(
+          `${name}: secret keys must never appear in EXPO_PUBLIC variables.`,
+        );
+    }
     if (
       /(SERVICE_ROLE|SECRET_KEY|PRIVATE_KEY)/i.test(name) ||
       raw.startsWith("sb_secret_") ||

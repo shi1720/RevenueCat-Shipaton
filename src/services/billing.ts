@@ -6,8 +6,14 @@ import type { CustomerInfo, PurchasesPackage } from "react-native-purchases";
 export type { PurchasesPackage } from "react-native-purchases";
 
 const androidStore = process.env.EXPO_PUBLIC_ANDROID_STORE || "google";
-const apiKey =
-  Platform.OS === "ios"
+// Test Store is opt-in and additionally bound to an internal build's manifest.
+// A stray test key can never change the production store adapter.
+export const billingSandbox =
+  process.env.EXPO_PUBLIC_REVENUECAT_TEST_STORE === "true";
+const sandboxBuild = Constants.expoConfig?.extra?.revenueCatTestStore === true;
+const apiKey = billingSandbox
+  ? process.env.EXPO_PUBLIC_REVENUECAT_TEST_KEY
+  : Platform.OS === "ios"
     ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
     : Platform.OS === "android"
       ? androidStore === "galaxy"
@@ -53,7 +59,19 @@ async function purchases() {
     throw new Error(
       "Studio purchases are not configured in this build. All free features remain available.",
     );
-  if (apiKey!.trim().startsWith("test_"))
+  if (billingSandbox && (!sandboxBuild || Platform.OS === "web"))
+    throw new Error(
+      "RevenueCat Test Store requires an explicitly configured internal native preview build.",
+    );
+  if (billingSandbox && !apiKey!.trim().startsWith("test_"))
+    throw new Error(
+      "The internal Test Store build requires its Test Store SDK key.",
+    );
+  if (apiKey!.trim().startsWith("sk_"))
+    throw new Error(
+      "RevenueCat server secrets must never be used as an app SDK key.",
+    );
+  if (!billingSandbox && apiKey!.trim().startsWith("test_"))
     throw new Error(
       "This build requires a real store or RevenueCat Billing app key. Use the store sandbox to test purchases.",
     );
@@ -82,7 +100,7 @@ async function configure(userId?: string) {
       ...(userId ? { appUserID: userId } : {}),
     };
     client.configure(
-      Platform.OS === "android" && androidStore === "galaxy"
+      !billingSandbox && Platform.OS === "android" && androidStore === "galaxy"
         ? {
             ...base,
             store: "GALAXY",
@@ -106,7 +124,13 @@ async function ready() {
 
 function hasStudio(info: CustomerInfo): boolean {
   const entitlement = info.entitlements.active.studio;
-  return Boolean(entitlement?.isActive && entitlement.expirationDate === null);
+  return Boolean(
+    entitlement?.isActive &&
+    entitlement.expirationDate === null &&
+    (billingSandbox
+      ? entitlement.store === "TEST_STORE"
+      : entitlement.store !== "TEST_STORE"),
+  );
 }
 
 /** Call on startup and every auth change; omission explicitly returns to anonymous identity. */

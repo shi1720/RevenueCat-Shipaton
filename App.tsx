@@ -60,6 +60,7 @@ import {
 } from "./src/services/auth";
 import {
   billingConfigured,
+  billingSandbox,
   getStudioStatus,
   initializeBilling,
 } from "./src/services/billing";
@@ -401,6 +402,15 @@ function Workspace() {
       style={{ flex: 1, backgroundColor: c.bg }}
       edges={["top", "left", "right", "bottom"]}
     >
+      {billingSandbox && (
+        <View style={{ backgroundColor: c.lilac, padding: 10 }}>
+          <Text
+            style={[common.muted, { textAlign: "center", color: c.purple }]}
+          >
+            Internal sandbox · Test purchases only · No real charges
+          </Text>
+        </View>
+      )}
       <View style={{ flex: 1, flexDirection: "row" }}>
         {wide && (
           <View style={s.sidebar}>

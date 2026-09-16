@@ -41,6 +41,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npx --yes deno check supabase/functions/delete-account/index.ts
+      - run: npx --yes deno check --config supabase/functions/delete-firebase-account/deno.json supabase/functions/delete-firebase-account/index.ts
+      - run: npx --yes deno test --allow-env --config supabase/functions/delete-firebase-account/deno.json supabase/functions/delete-firebase-account/auth-adapter.test.ts
+      - run: npx --yes deno check --config supabase/functions/delete-firebase-account/deno.json supabase/tests/firebase-deletion-live.ts
       - run: npm run export:native -- --output-dir dist-native
       - name: Verify Galaxy configuration and native export
         env:

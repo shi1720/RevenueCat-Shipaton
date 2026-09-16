@@ -36,6 +36,7 @@ import {
 } from "../services/auth";
 import {
   billingConfigured,
+  billingSandbox,
   getStudioPackages,
   purchaseStudio,
   restoreStudio,
@@ -491,7 +492,9 @@ export function Paywall({
       await refresh();
       setMessage(
         active
-          ? "Studio is yours. Make something wonderful."
+          ? billingSandbox
+            ? "Test purchase verified by RevenueCat. Sandbox Studio is active."
+            : "Studio is yours. Make something wonderful."
           : "No lifetime Studio purchase was found for this store account.",
       );
     } catch (e) {
@@ -505,6 +508,24 @@ export function Paywall({
   };
   return (
     <View style={{ gap: 23 }}>
+      {billingSandbox && (
+        <View
+          style={{
+            padding: 18,
+            backgroundColor: c.lilac,
+            borderRadius: 14,
+            gap: 7,
+          }}
+        >
+          <Text style={[common.body, { color: c.purple }]}>
+            RevenueCat Test Store
+          </Text>
+          <Text style={common.muted}>
+            Internal sandbox only. Purchases here test the RevenueCat
+            integration and do not charge money or grant a real store purchase.
+          </Text>
+        </View>
+      )}
       <View
         style={{
           backgroundColor: c.purpleDark,
@@ -558,14 +579,20 @@ export function Paywall({
           }}
         >
           <Text style={[common.body, { color: c.green }]}>
-            You have lifetime Studio access. Thank you for supporting Unpause.
+            {billingSandbox
+              ? "Sandbox Studio is active through a verified RevenueCat test purchase."
+              : "You have lifetime Studio access. Thank you for supporting Unpause."}
           </Text>
         </View>
       ) : billingConfigured && packages.length ? (
         <>
           <Text style={{ fontFamily: font.serif, fontSize: 34, color: c.ink }}>
             {packages[0].product.priceString}
-            <Text style={common.muted}> / once, yours for life</Text>
+            <Text style={common.muted}>
+              {billingSandbox
+                ? " / test price, no charge"
+                : " / once, yours for life"}
+            </Text>
           </Text>
           {Platform.OS === "web" && !signedIn ? (
             <Button
@@ -574,7 +601,11 @@ export function Paywall({
             />
           ) : (
             <Button
-              title="Make room with Studio"
+              title={
+                billingSandbox
+                  ? "Test Studio purchase"
+                  : "Make room with Studio"
+              }
               busy={busy}
               onPress={() => buy()}
             />
@@ -624,9 +655,11 @@ export function Paywall({
         </Text>
       )}
       <Text style={[common.muted, { fontSize: 11 }]}>
-        Payment is charged by your store at confirmation. Studio is a
-        non-consumable lifetime unlock. Device storage limits apply. Your notes
-        remain readable if purchase verification is temporarily unavailable.
+        {billingSandbox
+          ? "No payment is collected in this internal Test Store build. Test entitlements can be reset and do not establish ownership in a real app store."
+          : "Payment is charged by your store at confirmation. Studio is a non-consumable lifetime unlock."}{" "}
+        Device storage limits apply. Your notes remain readable if purchase
+        verification is temporarily unavailable.
       </Text>
       <View style={common.row}>
         <Button title="Privacy" kind="ghost" onPress={() => legal("privacy")} />

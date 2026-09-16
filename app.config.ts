@@ -4,12 +4,22 @@ const store = process.env.EXPO_PUBLIC_ANDROID_STORE || "google";
 if (!["google", "galaxy"].includes(store))
   throw new Error("EXPO_PUBLIC_ANDROID_STORE must be google or galaxy.");
 
+const testStore = process.env.EXPO_PUBLIC_REVENUECAT_TEST_STORE === "true";
+const buildProfile = process.env.EAS_BUILD_PROFILE || "";
+const internalBuild = buildProfile
+  ? /^(development|preview)(-|$)/.test(buildProfile)
+  : process.env.UNPAUSE_BUILD_DISTRIBUTION === "internal";
+if (testStore && !internalBuild)
+  throw new Error(
+    "RevenueCat Test Store is restricted to internal preview/development builds. For a local preview, explicitly set UNPAUSE_BUILD_DISTRIBUTION=internal.",
+  );
+
 const config: ExpoConfig = {
-  name: "Unpause",
+  name: testStore ? "Unpause Sandbox" : "Unpause",
   slug: "unpause",
   description: "Save your place in the things you love making.",
   version: "1.0.0",
-  scheme: "unpause",
+  scheme: testStore ? "unpause-sandbox" : "unpause",
   orientation: "default",
   userInterfaceStyle: "light",
   icon: "./assets/icon.png",
@@ -17,7 +27,9 @@ const config: ExpoConfig = {
   platforms: ["ios", "android", "web"],
   ...(process.env.EXPO_OWNER ? { owner: process.env.EXPO_OWNER } : {}),
   ios: {
-    bundleIdentifier: "com.shivamgupta.unpause",
+    bundleIdentifier: testStore
+      ? "com.shivamgupta.unpause.sandbox"
+      : "com.shivamgupta.unpause",
     supportsTablet: true,
     buildNumber: "1",
     infoPlist: {
@@ -30,8 +42,9 @@ const config: ExpoConfig = {
     privacyManifests: { NSPrivacyTracking: false },
   },
   android: {
-    package:
-      store === "galaxy"
+    package: testStore
+      ? "com.shivamgupta.unpause.sandbox"
+      : store === "galaxy"
         ? "com.shivamgupta.unpause.galaxy"
         : "com.shivamgupta.unpause",
     versionCode: 1,
@@ -88,6 +101,7 @@ const config: ExpoConfig = {
   ],
   extra: {
     androidStore: store,
+    revenueCatTestStore: testStore,
     ...(process.env.EAS_PROJECT_ID
       ? { eas: { projectId: process.env.EAS_PROJECT_ID } }
       : {}),

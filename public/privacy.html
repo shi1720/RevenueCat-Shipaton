@@ -79,6 +79,14 @@
       </p>
       <h2>Your controls</h2>
       <p>
+        Account deletion runs through a secure service hosted on Supabase. It
+        verifies your Firebase login, removes the matching RevenueCat customer
+        profile, and then removes your Firebase account. It stores hashed
+        request identifiers for retry protection and rate limiting, never your
+        project notes or photos. Retry authorization expires after five minutes;
+        expired coordination records are cleaned up on later deletion requests.
+      </p>
+      <p>
         You can export your projects and erase local data in
         <strong>Your corner</strong>. Deleting a connected account is a separate
         action there; it removes the login and linked customer profile without
