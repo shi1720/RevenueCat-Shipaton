@@ -21,7 +21,7 @@ A submitted entry is not proof of eligibility. The store-release declaration rem
 
 Samsung account registration is complete. Seller Portal shows Private Seller / Free Distribution Seller. Android app registration is blocked until Corporate Commercial Distribution Seller approval through the portal's business/D-U-N-S process.
 
-The [Samsung onboarding email](samsung-onboarding-request.md) is prepared and **not sent**. Sending requires the owner's permission. No commercial approval, D-U-N-S exception, listing, or store release is claimed.
+The [Samsung onboarding email](samsung-onboarding-request.md) was sent with the owner's explicit authorization on September 16 at 9:30 pm IST. Gmail confirmed sending. It requests an individual-developer approval route, required documentation, and expedited review. No commercial approval, D-U-N-S exception, listing, or store release is claimed.
 
 Android Developer Verification of the package and production signing certificate is a separate release requirement from Samsung commercial approval. The Galaxy package is `com.shivamgupta.unpause.galaxy`.
 

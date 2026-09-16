@@ -6,7 +6,7 @@ Unpause is live on the web, its Devpost entry is submitted, and the native Reven
 
 Samsung account registration is complete. The Seller Portal currently identifies the account as a Private Seller / Free Distribution Seller and blocks Android app registration until Corporate Commercial Distribution Seller approval. The portal's corporate process requires D-U-N-S/business verification. Use genuine identity, company, and payout information.
 
-The Galaxy package is **`com.shivamgupta.unpause.galaxy`**. The [prepared Samsung onboarding request](release/samsung-onboarding-request.md) asks the published RevenueCat onboarding contact about the correct approval path and possible alternatives. **It has not been sent. Sending it requires Shivam's permission.** No exception or expedited approval is assumed.
+The Galaxy package is **`com.shivamgupta.unpause.galaxy`**. The [Samsung onboarding request](release/samsung-onboarding-request.md) was sent with Shivam's authorization on September 16 at 9:30 pm IST. It asks the published RevenueCat onboarding contact about an individual-developer approval route, acceptable documents, and expedited review. Gmail confirmed sending. No exception or expedited approval is assumed.
 
 Samsung commercial approval and Android Developer Verification are separate. Verify the package and production signing certificate through the required Android developer process before submitting the Galaxy binary. See the [Samsung notice](https://seller.samsungapps.com/notice/getNoticeDetail.as?csNoticeID=0000011990) and [launch status](release/launch-status-2026-09-16.md).
 
