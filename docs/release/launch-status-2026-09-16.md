@@ -22,9 +22,13 @@ A valid project ID alone will not establish eligibility. A qualifying public mob
 
 ## Account setup requiring the owner
 
-Samsung reports no existing account for the supplied Gmail address. Its signup form has the owner's email and name filled, but requires date of birth, a new password, and subsequent verification. RevenueCat's signup form is also prepared and requires a new password. The owner was asked to complete these steps in the browser, without sending passwords in chat. No Samsung seller account, RevenueCat dashboard project, store listing, or live purchase has been claimed as completed.
+Samsung's email signup reported no existing account for the supplied Gmail address. A subsequent Google sign-in attempt reached Chrome's account chooser and completed the basic name/email authorization. Google now requests permission for Samsung to read the owner's exact date of birth. That additional permission is pending the owner's answer. The direct email/password signup remains available, but the Google route may avoid creating a separate Samsung password.
 
-The browser credential rule requires the owner to complete new credential entry; the date of birth is not known and cannot be inferred. Any later identity, seller, tax, or banking verification must use the owner's real information.
+RevenueCat's email/password login and signup were inspected. A focused Gmail search, including Spam and Trash, found no messages from revenuecat.com. This does not prove that no account exists. The signup form has the owner's name, email, and Shipaton referral filled, with optional marketing unchecked. New password entry and signup submission remain with the owner under the browser credential rule. No Samsung seller account, RevenueCat dashboard project, store listing, or live purchase has been claimed as completed.
+
+The browser credential rule requires the owner to complete new credential entry. The Google birthday permission was not granted without approval, and no date of birth was inferred. Any later identity, seller, tax, or banking verification must use the owner's real information.
+
+Samsung's [Android Developer Verification notice](https://seller.samsungapps.com/notice/getNoticeDetail.as?csNoticeID=0000011990), checked September 16, also says new app registrations and updates with unapproved binaries are blocked starting September 2. Release preparation must verify the package and production signing certificate in Google's Android Developer Console before claiming Galaxy submission readiness. This is separate from Samsung commercial seller approval.
 
 ## Infrastructure ownership
 
