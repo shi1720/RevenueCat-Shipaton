@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-09-16T15:46:52.614029+00:00",
+  "webUrl": "https://unpause-studio.web.app",
+  "devpostUrl": "https://devpost.com/software/unpause-k9p21y",
+  "devpostStatus": "Submitted, 5/5 steps",
+  "storePublishedDeclaration": false,
+  "revenueCatProjectId": "projb008cb09",
+  "youtubeUrl": "https://www.youtube.com/watch?v=jXpOlvDShRY",
+  "androidPreviewUrl": "https://github.com/shi1720/Unpause-Preview/releases/tag/v1.0.0-preview.3",
+  "anonymousDownloadHttpStatus": 200,
+  "apkBytes": 37325300,
+  "apkSha256": "2d7db0e824a329bd8893a038b0bc9054cc82663c0488b9c93f436856014a4e2d",
+  "unitTests": 154,
+  "browserScenarios": 30,
+  "firebaseAdminTokenTests": 3,
+  "liveDeletionChecks": 15,
+  "hostedAccountPanelAndLocalPersistence": "passed, no captured JavaScript errors",
+  "hostedFontBytes": "five fonts hash-match local export",
+  "limits": [
+    "Development-signed APK with no live checkout; not store published.",
+    "Samsung corporate Commercial Distribution Seller approval blocks Android registration.",
+    "Internal RevenueCat Test Store evidence is not production store purchase evidence.",
+    "iOS bundle exported; no compiled or signed iOS binary."
+  ]
+}

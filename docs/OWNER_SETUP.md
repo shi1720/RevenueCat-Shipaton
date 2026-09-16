@@ -1,73 +1,57 @@
-# Shivam’s launch handoff
+# Shivam's launch handoff
 
-Unpause’s local studio is implemented and independently tested. You can use the app without API keys. These are the owner-only steps needed to turn it into a published, monetized Shipaton entry.
+Unpause is live on the web, its Devpost entry is submitted, and the native RevenueCat Test Store workflow is verified. Production mobile-store release remains unfinished. The remaining work is concentrated in seller approval, actual store products and transactions, production signing, and device acceptance checks.
 
-## 1. Start Samsung verification first
+## 1. Resolve Samsung commercial seller approval
 
-Visit [Samsung Seller Portal](https://seller.samsungapps.com/) using your own Samsung account. Check your commercial seller status and complete the identity/business/payout information Samsung requires for your region. Free publishing still requires commercial approval; use genuine documents. D-U-N-S is one route, and Samsung documents alternatives through support.
+Samsung account registration is complete. The Seller Portal currently identifies the account as a Private Seller / Free Distribution Seller and blocks Android app registration until Corporate Commercial Distribution Seller approval. The portal's corporate process requires D-U-N-S/business verification. Use genuine identity, company, and payout information.
 
-The app’s Galaxy package is **`com.shivamgupta.unpause.galaxy`**. Do not register the Google package for the Galaxy binary. If verification is delayed, RevenueCat lists **rc.onboard@samsung.com** as an onboarding contact. An optional draft is below; it has not been sent.
+The Galaxy package is **`com.shivamgupta.unpause.galaxy`**. The [prepared Samsung onboarding request](release/samsung-onboarding-request.md) asks the published RevenueCat onboarding contact about the correct approval path and possible alternatives. **It has not been sent. Sending it requires Shivam's permission.** No exception or expedited approval is assumed.
 
-> Subject: Shipaton 2026: Galaxy Store onboarding for Unpause
->
-> Hello Samsung onboarding team,
->
-> I’m Shivam Gupta, building Unpause for RevenueCat Shipaton 2026. Unpause helps people resume unfinished creative projects, with a one-time Studio upgrade through RevenueCat and Samsung IAP.
->
-> I’m preparing the Galaxy Store release for package com.shivamgupta.unpause.galaxy. Could you please advise on the required commercial verification steps and whether Shipaton onboarding assistance is available for my application?
->
-> I can provide my Seller Portal account details and required documentation through the appropriate secure channel.
->
-> Thank you,
-> Shivam Gupta
+Samsung commercial approval and Android Developer Verification are separate. Verify the package and production signing certificate through the required Android developer process before submitting the Galaxy binary. See the [Samsung notice](https://seller.samsungapps.com/notice/getNoticeDetail.as?csNoticeID=0000011990) and [launch status](release/launch-status-2026-09-16.md).
 
-Verification is not guaranteed. The entry needs a published US-accessible app by **September 30, 2026, 11:45 p.m. PDT / October 1, 12:15 p.m. IST**. See [official-rules research](research/hackathon.md).
+## 2. Keep the configured accounts and deletion service
 
-## 2. Use the configured Firebase accounts
+The [hosted app](https://unpause-studio.web.app) uses Firebase Authentication. Actual hosted signup, session persistence, sign-in, sign-out, and account deletion passed. Native account persistence and deletion were also exercised on an Android emulator. Notes and photos remain on the device, including after account deletion.
 
-The deployed app at [unpause-studio.web.app](https://unpause-studio.web.app) already uses Firebase Authentication. Real hosted signup, session persistence, login, logout, and account deletion passed. Native sign-in and encrypted offline session persistence also passed on the final Android emulator build. Account deletion preserves local projects.
+Supabase now hosts the live Firebase/RevenueCat deletion endpoint. It verifies the Firebase identity, removes the matching RevenueCat customer, and deletes the Firebase account only after purchase-profile cleanup completes. Temporary hashed coordination records support retry and rate limiting. Supabase does not store project notes or photos. The older Supabase identity adapter remains an optional code fallback, not the deployed account provider.
 
-The four public Firebase configuration fields are already in ignored `.env.local` on this machine. Do not overwrite this file with the empty template. A fresh checkout should populate those fields from the dedicated Firebase project's web app settings. See [Firebase account setup](release/firebase-accounts.md).
+The endpoint is configured at `https://ljguedfuxpadvddzfgsj.supabase.co/functions/v1/delete-firebase-account`. See [the backend guide](release/firebase-deletion-backend.md) and [redacted live results](release/evidence/firebase-deletion-live-result.json). Live runs have exercised provider deletion, safe asynchronous retry, lost-response replay, revoked-token rejection, and rate limiting. The final live run also rejected an actual login older than five minutes. All 15 live checks passed, with four disposable identities removed and no cleanup errors.
 
-Password-reset requests are accepted by Firebase, but mailbox delivery and reset-link completion were not verified during the test window. Resolve that delivery check before treating recovery as release-certified. Accounts do not synchronize notes or photos.
+Existing public client configuration is in ignored `.env.local`. Do not overwrite it with the empty template. Administrative credentials belong only in provider secret stores and private local files. A fresh checkout should receive public configuration through the owner-controlled provider dashboards.
 
-Supabase remains an optional alternative provider. Its setup guide only applies if you deliberately choose that fallback instead of Firebase. Switching providers does not migrate account or purchase identities.
+Firebase accepted password-reset requests, but mailbox delivery and reset-link completion remain unverified. Finish that recovery check before release.
 
-## 3. Connect the real paid upgrade
+## 3. Finish production store products and purchases
 
-In [RevenueCat](https://app.revenuecat.com/), create your project and a Galaxy app matching the package above. Connect Samsung IAP through RevenueCat’s current onboarding steps.
+RevenueCat project **`projb008cb09`** is configured with Galaxy, iOS, Google Play, and Test Store apps:
 
 - Entitlement: **`studio`**.
-- Product: **non-consumable**, suggested ID `unpause_studio_lifetime`.
-- Current offering: `default`, containing the built-in **Lifetime** package (`$rc_lifetime`).
-- Proposed launch price: **$19.99 once**, subject to your decision and each store’s localized pricing.
-- Set `EXPO_PUBLIC_REVENUECAT_GALAXY_KEY` and `EXPO_PUBLIC_ANDROID_STORE=galaxy`.
-- Before enabling billing with Firebase accounts, deploy and verify the secure account/purchase-data deletion backend described in [Firebase accounts](release/firebase-accounts.md), then set `EXPO_PUBLIC_ACCOUNT_DELETION_URL`. The app refuses incomplete deletion. Keep RevenueCat administrative credentials on that backend only. The older Supabase function is for the Supabase identity fallback, not Firebase tokens.
+- Product identifier: **`unpause_studio_lifetime`**.
+- Offering: **`default`**.
+- Lifetime package: **`$rc_lifetime`**.
+- Proposed customer launch price: **US $19.99 once**, subject to actual store configuration and localized pricing.
 
-For iOS and Google Play, repeat with those stores’ own products, app identifiers, and public SDK keys. Never substitute a private API key or simulated `test_` key.
+Actual native Test Store cancellation, simulated failure, successful entitlement grant, restoration, and persistence after a cold restart were verified. **Test Store transactions are simulated and do not establish production billing, revenue, or eligibility.**
 
-A physical Samsung Galaxy device signed into a Samsung account is required for Galaxy purchase testing. Test with the appropriate store sandbox/explicit test-mode build. The checked-in production billing configuration can charge real money; no automated test in this repository makes a real purchase.
+The separate `artifacts/builds/unpause-internal-test-store.apk` is a debug/internal test client that needs Metro. It is not the standalone offline preview or a production binary. Keep its Test Store settings out of production profiles. The release checker rejects Test Store flags and keys.
 
-## 4. Publish support and policy pages
+Next, create and approve the actual product in each target store and finish the store-specific RevenueCat connections. On a physical Samsung Galaxy device, verify Samsung IAP purchase, cancellation, failure, restore, restart, account transitions, and coordinated deletion. Repeat appropriate store tests for Google Play and iOS. A RevenueCat dashboard product mapping alone does not complete the store product or transaction.
 
-Public [privacy](https://unpause-studio.web.app/privacy), [terms](https://unpause-studio.web.app/terms), and [support](https://unpause-studio.web.app/support) pages are deployed and linked in the app. The guarded [deployment script](../scripts/deploy-firebase.mjs) keeps these URLs configured. Verify the store data-disclosure forms against every enabled SDK. Local project storage does not mean account/purchase services collect no data.
+## 4. Build and validate production binaries
 
-## 5. Make the production binary
+The [current standalone Galaxy preview](https://github.com/shi1720/Unpause-Preview/releases/tag/v1.0.0-preview.3) is 37,325,300 bytes, SHA-256 `2d7db0e824a329bd8893a038b0bc9054cc82663c0488b9c93f436856014a4e2d`. It bundles JavaScript, includes the latest deletion client and uses a test signing certificate. Signature/alignment, in-place emulator upgrade, cold launch and local project preservation passed. Native account sign-in/deletion and fully offline startup were not verified on this exact APK because the bounded emulator automation attempt was inconclusive. Earlier APK account successes remain historical. The separate Test Store client expects Metro. Neither is a production-signed store release. See [exact current-build evidence](release/evidence/galaxy-final-preview-result.json).
 
-The local preview APK is for sideloaded testing. It uses a debug/test signing certificate and is **not the final store binary**.
+Follow [build.md](release/build.md), configure the correct store profile and owner-controlled production signing, and run the release gate. Preserve the production signing key for updates. Keep keystores, passwords, and server credentials private.
 
-Follow [build.md](release/build.md). Set up your own Expo project and signing credentials, then run the release configuration gate and the correct EAS profile. Keep production keystores, passwords, Apple credentials, and Samsung service keys private. An Apple developer account and suitable build/signing setup are needed for iOS store distribution.
+Test the exact signed binary on target hardware, including large backups, photos, permissions, notification delivery, rotation/resizing, accounts, purchases, and deletion. iOS source and bundle configuration are prepared. A compiled, signed iOS binary still requires the appropriate Apple account and toolchain.
 
-Test the exact signed binary before uploading. Confirm purchase, cancellation, restore, app restart, large backup import, photos, permissions, rotation/resizing, and account deletion on actual target hardware. Preserve the signing key for future updates.
+## 5. Complete release evidence and update the submitted entry
 
-## 6. Complete the store evidence and submit
+The [Devpost entry](https://devpost.com/software/unpause-k9p21y) is submitted. Its project ID is saved. Submission does not establish compliance with the public-store, monetization, or judge-access requirements; the store-release declaration remains false.
 
-The [public narrated demo](https://www.youtube.com/watch?v=jXpOlvDShRY), captions, native screenshots, icon, [editable deck](../artifacts/submission/Unpause-pitch-final.pptx), and [PDF brief](../artifacts/submission/Unpause-brief.pdf) are finished. The video is under two minutes and labels synthetic narration and Android emulator footage. You do not need to record a voiceover to use this version.
+The [public narrated demo](https://www.youtube.com/watch?v=jXpOlvDShRY), captions, native screenshots, icon, deck, and PDF brief are prepared. The current video labels AI narration and Android emulator footage. It predates Test Store verification and does not demonstrate a purchase. No new voiceover is required to use that honest preview.
 
-The [Devpost draft](https://devpost.com/submit-to/29969-revenuecat-shipaton-2026/manage/submissions/1185565-unpause/additional-info/edit) has its story, media, testing instructions, and supported award descriptions saved. Final validation currently requires the actual RevenueCat project ID. Store publication and real monetization are also eligibility requirements even though the form does not require a store URL to save the draft.
+Before the competition deadline, complete the eligible store release, verify US access and premium judge access, and update the entry with the approved store URL and accurate testing instructions. Revise purchase claims only after the corresponding real store behavior is verified. The [official rules](https://revenuecat-shipaton-2026.devpost.com/rules) control eligibility.
 
-Finish the RevenueCat/Samsung accounts in their prepared browser tabs. Samsung's Google sign-in has reached a permission request to read your exact date of birth; approval is pending. Its direct signup alternatively requires a date of birth and password. RevenueCat requires a signup password. Browser credential rules require you to complete new password entry yourself. Then connect real products, verify purchases/restores and judge access, supply the approved store URL and project ID, and finish the entry. Update the preview's pending-release statements only when those events have happened.
-
-Before submitting the Galaxy binary, also complete Android Developer Verification for the package and production signing certificate. Samsung's [current notice](https://seller.samsungapps.com/notice/getNoticeDetail.as?csNoticeID=0000011990) says new registrations and updates with unapproved binaries are blocked from September 2, 2026. Commercial seller approval and this binary verification are separate requirements.
-
-Use genuine identity, business, and payout information for seller verification. Do not paste secrets into a conversation: use local environment files and provider secret stores. Physical Galaxy testing and store review remain necessary. The exact current state is recorded in [launch status](release/launch-status-2026-09-16.md).
+Public [privacy](https://unpause-studio.web.app/privacy), [terms](https://unpause-studio.web.app/terms), and [support](https://unpause-studio.web.app/support) pages are deployed. Keep store data disclosures aligned with Firebase, RevenueCat, and the deletion endpoint. Local project storage does not mean those account services process no data.

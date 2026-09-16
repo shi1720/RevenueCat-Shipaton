@@ -3,49 +3,56 @@
 ## Public deliverables
 
 - App: https://unpause-studio.web.app
+- Submitted Devpost entry: https://devpost.com/software/unpause-k9p21y
 - Demo: https://www.youtube.com/watch?v=jXpOlvDShRY
 - Privacy: https://unpause-studio.web.app/privacy
 - Terms: https://unpause-studio.web.app/terms
 - Support: https://unpause-studio.web.app/support
 
-The YouTube demo is public, 78 seconds long, and uses actual Android emulator footage. It includes synthetic narration, visible captions, a selectable English subtitle track, and an original thumbnail. AI narration is disclosed in the video and description. YouTube's copyright and Community Guidelines checks reported no issues. A signed-out browser loaded the public player and began playback.
+The public demo is approximately 78 seconds of actual Android emulator footage with disclosed AI narration, burned captions, a selectable English subtitle track, and an original thumbnail. Signed-out playback was verified. It shows the core project loop and predates Test Store purchase testing.
 
 ## Devpost
 
-Draft editor: https://devpost.com/submit-to/29969-revenuecat-shipaton-2026/manage/submissions/1185565-unpause/additional-info/edit
+Final submission succeeded. Devpost displayed **Project submitted**, and the public project page shows **Submitted to RevenueCat Shipaton 2026**. RevenueCat project ID `projb008cb09` is saved. The entry includes the story, app/demo links, artwork, native screenshots, testing instructions, and supported category rationale.
 
-Saved: Unpause title, elevator pitch, seven-section project story, technology tags, live app link, public video link, project cover, native screenshots with captions, uncropped 1024px app icon, Android platform, testing instructions, and Design/HAMM/Galaxy rationale. Categories without an implemented integration or supporting evidence were left blank.
+A submitted entry is not proof of eligibility. The store-release declaration remains false. Qualifying public mobile-store release, actual production-store monetization, and verified premium judge access remain unfinished.
 
-Final submission was attempted with the owner's authorized terms acceptance. Devpost rejected it with “Please complete required fields in Additional info before submitting.” The additional-info page identifies **RevenueCat project ID** as the remaining required form field. No identifier was fabricated. The project remains a draft.
+## Samsung seller status
 
-A valid project ID alone will not establish eligibility. A qualifying public mobile-store release, real RevenueCat monetization, and judge access still need to be completed under the official rules. The store-release declaration remains unchecked.
+Samsung account registration is complete. Seller Portal shows Private Seller / Free Distribution Seller. Android app registration is blocked until Corporate Commercial Distribution Seller approval through the portal's business/D-U-N-S process.
 
-## Account setup requiring the owner
+The [Samsung onboarding email](samsung-onboarding-request.md) is prepared and **not sent**. Sending requires the owner's permission. No commercial approval, D-U-N-S exception, listing, or store release is claimed.
 
-Samsung's email signup reported no existing account for the supplied Gmail address. A subsequent Google sign-in attempt reached Chrome's account chooser and completed the basic name/email authorization. Google now requests permission for Samsung to read the owner's exact date of birth. That additional permission is pending the owner's answer. The direct email/password signup remains available, but the Google route may avoid creating a separate Samsung password.
+Android Developer Verification of the package and production signing certificate is a separate release requirement from Samsung commercial approval. The Galaxy package is `com.shivamgupta.unpause.galaxy`.
 
-RevenueCat's email/password login and signup were inspected. A focused Gmail search, including Spam and Trash, found no messages from revenuecat.com. This does not prove that no account exists. The signup form has the owner's name, email, and Shipaton referral filled, with optional marketing unchecked. New password entry and signup submission remain with the owner under the browser credential rule. No Samsung seller account, RevenueCat dashboard project, store listing, or live purchase has been claimed as completed.
+## RevenueCat configuration and test boundary
 
-The browser credential rule requires the owner to complete new credential entry. The Google birthday permission was not granted without approval, and no date of birth was inferred. Any later identity, seller, tax, or banking verification must use the owner's real information.
+Project `projb008cb09` contains Galaxy, iOS, Google Play, and Test Store apps. The configured mapping uses entitlement `studio`, offering `default`, package `$rc_lifetime`, and product `unpause_studio_lifetime`.
 
-Samsung's [Android Developer Verification notice](https://seller.samsungapps.com/notice/getNoticeDetail.as?csNoticeID=0000011990), checked September 16, also says new app registrations and updates with unapproved binaries are blocked starting September 2. Release preparation must verify the package and production signing certificate in Google's Android Developer Console before claiming Galaxy submission readiness. This is separate from Samsung commercial seller approval.
+Actual native Test Store cancellation, simulated failure, successful entitlement grant, restore, and cold-restart persistence passed. These are RevenueCat Test Store transactions, not actual Samsung/Apple/Google store purchases and not revenue.
 
-## Infrastructure ownership
+The internal client is `artifacts/builds/unpause-internal-test-store.apk`. It is debug/internal and requires Metro. It must not be described as a standalone offline purchase demo or used for production distribution. Production checks reject Test Store configuration.
 
-Firebase project `unpause-studio` is dedicated to this app, under the requested Google account, on the no-cost Spark plan. Firebase Authentication is the configured primary identity provider. No project-note or photo cloud synchronization is enabled.
+The [current standalone Galaxy preview](https://github.com/shi1720/Unpause-Preview/releases/tag/v1.0.0-preview.3) includes the latest client source and configured deletion URL. Its SHA-256 is `2d7db0e824a329bd8893a038b0bc9054cc82663c0488b9c93f436856014a4e2d` and size is 37,325,300 bytes. Signature/alignment, in-place emulator upgrade, cold launch and preservation of the sample studio and exact next step passed. The bounded native account UI attempt was inconclusive because emulator text injection and UIAutomator failed; no current-APK native sign-in/deletion or fully offline startup success is claimed. The temporary account was deleted administratively, its credential file removed, and the emulator left on the local home screen. See [current-build evidence](evidence/galaxy-final-preview-result.json).
 
-An unused free Supabase project named Unpause was also created during setup (`ljguedfuxpadvddzfgsj`). It was not connected to the deployed app after choosing Firebase Auth for public email account support. No app customers were migrated. Supabase remains an optional code-level fallback.
+## Firebase accounts and coordinated deletion
 
-The supplied OpenAI key was used only for speech production and verification. It is not part of the app or repository. A private local credential file is outside the workspace with owner-only permissions. Never include it in a release archive or public testing instructions.
+Firebase project `unpause-studio` supplies the deployed identity service. Real hosted signup, session persistence, sign-in, sign-out, confirmed deletion, and rejection after deletion passed. Historical native emulator checks on the earlier `149e2ca...` APK verified account persistence through offline process restart and deletion; those results do not establish the same coverage for the current `2d7db0e...` APK. Physical Samsung behavior remains a separate acceptance test.
 
-## Release limits
+Supabase project `ljguedfuxpadvddzfgsj` now hosts the deployed Firebase/RevenueCat deletion endpoint and temporary hashed retry/rate-limit coordination. Firebase remains the identity provider. Notes and photos are not uploaded or synchronized.
 
-Android preview artifacts use a development test certificate and are not a public Galaxy Store release. iOS source and bundle validation do not constitute a compiled, signed iOS binary. Paid Firebase account deletion is deliberately gated until a verified backend can remove the matching RevenueCat customer and Firebase account safely.
+The [deletion backend](firebase-deletion-backend.md) confirms RevenueCat customer removal before deleting the Firebase account. Live checks have exercised asynchronous `202` retry followed by success, both-provider absence, safe post-deletion replay, revoked tokens, rate limiting, native requests, and request isolation. The final run rejected an actual login older than five minutes and completed all 15 checks successfully. Four disposable identities were removed with zero cleanup errors. The [redacted live evidence](evidence/firebase-deletion-live-result.json) records these results and their limits: no real purchase, a tampered rather than genuinely foreign-project token, and provider-outage injection covered locally.
 
-See the Firebase hosting/account evidence, native build evidence, and iteration-two review for exact test results and the remaining device checks.
+Firebase accepted the reset request, but the authorized mailbox search found no matching message during its test window. Reset email delivery and reset-link completion remain unverified.
 
-## Final verification artifacts
+## Remaining release work
 
-The final configured Android sideload preview is `artifacts/builds/unpause-galaxy-preview.apk`, SHA-256 `149e2ca14efabba7139459d0627d7f82ada7840fcf1d44f89b004b61fec3c842`. All 41 source/asset hashes match [the recorded snapshot](evidence/source-snapshot.json). Actual emulator UI sign-in, offline process restart persistence, account deletion, and rejection of the deleted identity passed. Test identities were deleted, and the task emulator was shut down after verification. The APK remains test-signed.
+Complete Samsung corporate commercial approval, actual target-store products and billing connections, physical store-device transaction/restore verification, production signing, Android binary verification, store review, and eligible public listing. Provide tested premium judge access and update the submitted entry with actual store evidence.
 
-[Hosted UI evidence](evidence/firebase-live-account-evidence.json) records successful account and project lifecycles at mobile/desktop widths, legal routes, and five valid loaded font binaries, with no JavaScript errors. [Reset evidence](evidence/firebase-reset-request-evidence.json) confirms the existing account and accepted request, but the authorized Gmail search found no matching message during the test window. Delivery and link completion remain unverified.
+iOS source and bundle checks do not constitute a compiled, signed iOS binary. Native notification/photo lifecycle checks and recovery-email delivery remain device/service acceptance work. No production paid transaction, customer traction, revenue, or eligibility result is claimed.
+
+See [owner setup](../OWNER_SETUP.md), [verification](verification.md), [native build evidence](native-build-evidence.md), and [backend evidence](evidence/firebase-deletion-live-result.json) for the current scope. The final aggregate passed 154 unit tests, 30 desktop/mobile browser scenarios, type checking, formatting, iOS/Android bundle exports, and three Firebase Admin Deno tests. These checks remain distinct from production-store acceptance.
+
+Public standalone Android preview: [download and release notes](https://github.com/shi1720/Unpause-Preview/releases/tag/v1.0.0-preview.3). This ARM64 build uses a development test certificate, includes its JavaScript, and has no live checkout. The download returned HTTP 200 without authentication, with the verified APK byte count. Firebase Spark rejects executable uploads, so only the app and support pages use Firebase Hosting.
+
+GitHub quality checks passed for application commit `4d575fafae22401ed43e47482ea97e7ccfab4a1c`: [complete quality run](https://github.com/shi1720/RevenueCat-Shipaton/actions/runs/35117402129). This includes web/iOS/Android/Galaxy exports, browser scenarios, formatting, unit tests, and both account backends with the new Firebase Admin checks.

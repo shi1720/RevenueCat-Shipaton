@@ -71,8 +71,8 @@ label('A real competitive landscape',366)
 para('Krafio and Purlsy organize craft projects and progress. Tapcord connects physical craft items to their history. [2-4] Unpause bets on a short return ritual organized around available time and the next physical action. No durable moat or unique-invention claim is established.',44,392,507,10.8,15.6)
 
 label('Verified experience and store release gates',470)
-para('<b>Verified:</b> live web app and native Android preview. <b>101 unit tests and 30 browser scenarios pass.</b> Hosted Firebase signup, sign-in, reload persistence, sign-out, and deletion are verified. Accounts do not sync projects. Supabase remains an optional fallback. RevenueCat integration is implemented.',44,496,507,10.8,15.6)
-para('<b>Before store launch:</b> verify RevenueCat purchases and restores on Galaxy hardware, deploy purchase-data deletion, complete signing, and pass store review. [5] iOS source and bundles are prepared. A compiled iOS binary remains pending.',44,586,507,10.8,15.6)
+para('<b>Verified:</b> live web app, Android preview, and hosted Firebase accounts. <b>154 unit tests and 30 browser scenarios pass.</b> Native RevenueCat Test Store cancellation, failure, success, restore, and restart passed. The live Firebase/RevenueCat deletion backend passed 15 checks. Test Store purchases are simulated. Notes and photos stay local.',44,496,507,10.8,15.6)
+para('<b>Before store launch:</b> resolve Samsung corporate seller approval, which currently blocks Android app registration. Complete production-store products, physical Galaxy purchases, signing, and store review. [5] A compiled iOS binary remains pending.',44,586,507,10.8,15.6)
 para('<b>Next validation:</b> observe makers returning to their own projects and test actual Studio purchases. Customer traction and willingness to pay remain unvalidated.',44,659,507,10.8,15.6)
 
 sources=[

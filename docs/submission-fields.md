@@ -4,7 +4,13 @@ Prepared September 16, 2026. The web app is publicly hosted. The Android app is 
 
 **Web app:** https://unpause-studio.web.app
 
-**Uploaded video:** https://www.youtube.com/watch?v=jXpOlvDShRY
+**Public video:** https://www.youtube.com/watch?v=jXpOlvDShRY
+
+**Submitted entry:** https://devpost.com/software/unpause-k9p21y
+
+**RevenueCat project:** `projb008cb09`
+
+Devpost confirms submission. The store-release declaration remains false; submission does not establish eligibility.
 
 The YouTube video is public; playback was confirmed after processing.
 
@@ -28,9 +34,9 @@ Maker communities describe leaving notes with stored projects so they can recons
 
 ### What it does
 
-Unpause saves a handoff for an unfinished physical hobby: a photo, where you stopped, one tiny next action, and where the materials live.
+Unpause saves a handoff for an unfinished physical hobby: a photo, where you stopped, one next action, and where the materials live.
 
-When time opens up, choose your available time and energy. Find a project with a step that fits, open its resume card, and make a little. Leave a fresh checkpoint when you stop. Your photos, notes, and past sessions build a history of small returns.
+When time opens up, choose your available time and energy. Find a project with a step that fits, open its resume card, and make a little. Leave a checkpoint when you stop. Your photos, notes, and past sessions build a history of small returns.
 
 Three unfinished projects are free. Finishing one opens a slot for another idea. Studio is the planned lifetime upgrade for unlimited unfinished projects within device storage limits. Reminders, finished projects, and portable backups stay free.
 
@@ -38,11 +44,11 @@ Three unfinished projects are free. Finishing one opens a slot for another idea.
 
 Shivam Gupta created Unpause with AI-assisted research, implementation, and testing. React Native, Expo, and TypeScript share the core experience across Android, iOS, and web.
 
-The app works locally without signup. Firebase supports optional account identity, with Supabase retained as a configurable fallback. Signing in does not upload or synchronize project notes and photos.
+The app works locally without signup. Firebase supplies optional account identity. Supabase hosts coordinated Firebase/RevenueCat account deletion. Signing in does not upload or synchronize project notes and photos.
 
-RevenueCat integration handles lifetime offerings, verified Studio entitlements, purchase restoration, and account changes. Native storage uses bounded chunks and an atomic manifest. Validated backups preserve photos as well as text.
+RevenueCat handles lifetime Studio entitlements, restoration, and account identity across Galaxy, iOS, Google Play, and Test Store. Native storage uses bounded chunks and an atomic manifest. Validated backups preserve photos as well as text.
 
-Warm paper colors, violet accents, Fraunces headings, and original craft illustrations give the shelf its identity.
+Warm paper colors, Fraunces headings, and original craft illustrations make the shelf inviting.
 
 ### Challenges we ran into
 
@@ -52,7 +58,7 @@ We also protected unsaved drafts, prevented account changes from applying stale 
 
 ### Accomplishments that we're proud of
 
-The complete pause, return, make, and checkpoint loop works in a live web app and an installable Android preview. The latest implementation passes 101 unit tests and 30 desktop/mobile browser scenarios. The hosted app also passed real signup, session persistence, sign-in, sign-out, and account deletion. Android emulator checks exercise the native making workflow.
+The complete pause, return, make, and checkpoint loop works in a live web app and an installable Android preview. 154 unit tests and 30 browser scenarios pass. Hosted Firebase account flows and coordinated deletion passed live tests. The native RevenueCat Test Store also passed cancellation, simulated failure, success, restore, and cold restart. These simulated transactions do not establish production billing or revenue.
 
 The commercial model fits occasional hobby use: a useful free tier and one understandable lifetime upgrade. US $19.99 is the proposed price to validate with actual buyers.
 
@@ -64,7 +70,7 @@ Notes, Krafio, Purlsy, and Tapcord are credible alternatives. Unpause's bet is a
 
 ### What's next for Unpause
 
-Finish real store purchases, restoration, account/purchase-data deletion, physical-device testing, and a qualifying public store release. iOS source and build configuration are prepared; a compiled iOS binary remains to be produced.
+Resolve Samsung corporate commercial seller approval, then complete physical-device store purchases, signing, and a qualifying public release. iOS source and build configuration are prepared; a compiled iOS binary remains to be produced.
 
 Then invite makers to capture a handoff and return on another day. Observe whether they can start, whether they leave a second checkpoint, and whether Studio earns a purchase. Let that evidence guide better capture and craft-specific prompts.
 
@@ -72,7 +78,7 @@ The immediate aim is concrete: help someone reopen the drawer and keep making.
 
 ## Built with
 
-TypeScript, React Native, Expo, RevenueCat, Samsung IAP integration, Firebase Authentication, Firebase Hosting, Supabase (optional fallback), AsyncStorage, Zod, Vitest, Playwright.
+TypeScript, React Native, Expo, RevenueCat, Samsung IAP integration, Firebase Authentication, Firebase Hosting, Supabase Edge Functions and PostgreSQL deletion coordination, AsyncStorage, Zod, Vitest, Playwright.
 
 Do not select Kotlin Multiplatform, Replit, OneSignal, Layers, RevenueCat Ads, RevenueCat Funnels, Stripe, or Noise as implemented integrations. Generated native Kotlin project files do not make this a Kotlin Multiplatform entry.
 
@@ -80,7 +86,7 @@ Do not select Kotlin Multiplatform, Replit, OneSignal, Layers, RevenueCat Ads, R
 
 ### Working preview
 
-Open [the live Unpause app](https://unpause-studio.web.app). No account is required for the local project experience. An Android APK is also supplied as a native preview. The Android preview uses a test certificate and runs offline without a development server. Install it only as the clearly labeled development preview.
+Open [the live Unpause app](https://unpause-studio.web.app). No account is required for the local project experience. An Android APK is also supplied as a native preview. The earlier bundled Android preview uses a test certificate and runs without a development server. The newer `unpause-internal-test-store.apk` is a separate debug/internal client and requires Metro. It is not an offline premium demo or production release.
 
 1. Choose **Make room for my projects** for a clean studio, or **Explore a sample studio** for labeled example projects.
 2. Create a project named **Patchwork bookmark**. Enter **Sew the short edge with violet thread** as the next step and **Small basket on the desk** as the materials location. Choose ten minutes and gentle energy. Add a photo if available.
@@ -95,13 +101,15 @@ Project names, notes, and photos in the demonstration are examples. No private a
 
 ### Optional account access
 
-Firebase is the primary account provider in the configured app; Supabase remains an optional configuration fallback. Open **Your corner** and the account panel to create an account or sign in with your own email address. Signing in connects account identity while projects remain on this device. It does not provide cloud project sync. Never publish private test credentials.
+Firebase is the deployed account provider. Supabase hosts the coordinated Firebase/RevenueCat deletion endpoint and does not store project notes or photos. Open **Your corner** and the account panel to create an account or sign in with your own email address. Signing in connects account identity while projects remain on this device. It does not provide cloud project sync. Never publish private test credentials.
 
-The public web app passed actual signup, persistence after reload, sign-out, sign-in, account deletion with confirmation, and rejection of the deleted credentials. Local projects remained intact after account deletion. Password reset email delivery and native account persistence on physical hardware remain separate checks. See [Firebase account setup](release/firebase-accounts.md).
+The public web app passed actual signup, persistence after reload, sign-out, sign-in, account deletion with confirmation, and rejection of the deleted credentials. Local projects remained intact after account deletion. Password reset email delivery and native account persistence on physical hardware remain separate checks. The deployed deletion service passed real provider deletion, asynchronous retry, safe replay, revocation, rate-limit, and stale-login checks. See [Firebase account setup](release/firebase-accounts.md) and [deletion evidence](release/evidence/firebase-deletion-live-result.json).
 
 ### Premium access
 
-The preview does not demonstrate live store purchases. Checkout remains explicitly unavailable until the real offering is configured.
+RevenueCat project `projb008cb09` is configured with entitlement `studio`, offering `default`, package `$rc_lifetime`, and product `unpause_studio_lifetime`. Actual native Test Store cancellation, simulated failure, successful Studio unlock, restoration, and cold restart were verified.
+
+The internal Test Store client needs Metro and uses simulated transactions. It does not provide a production store purchase or a public judge entitlement. The hosted web app remains suitable for testing the free core experience. Production Samsung/Apple/Google store transactions and premium judge access remain pending.
 
 Before final judging, supply an actual trial or redeemable promo code and verify it against the published store build. Include the precise redemption route and a way to contact the entrant if access fails. Do not put a made-up code, local entitlement bypass, or “all premium features work” claim into this field. For a configured native build, verify **Restore purchases** with the purchasing store account.
 
@@ -119,7 +127,7 @@ Created by Shivam Gupta for RevenueCat Shipaton 2026. This demo shows actual nat
 
 Save where you stopped, find a project that fits your time and energy, make a little, and leave your next handoff. The core experience works locally without signup, with photos, project history, and portable backups. Optional accounts do not synchronize project data.
 
-Three unfinished projects are free. Studio is the planned lifetime upgrade through RevenueCat. Live purchase verification and public app-store release remain pending.
+Three unfinished projects are free. Studio uses a configured lifetime offering through RevenueCat. Native Test Store flows have been verified since this video was recorded; the transactions are simulated. Production store purchase verification and public app-store release remain pending.
 
 #Shipaton #RevenueCat #Unpause
 
@@ -138,7 +146,7 @@ Look at the handoff card, the time-and-energy return flow, and the way each proj
 
 ### HAMM Award
 
-Unpause pairs three free unfinished projects with a planned one-time Studio unlock. Finishing a project releases a free slot, while backups and existing memories remain accessible. RevenueCat supplies the lifetime entitlement, offerings, restoration, and purchase identity handling. The proposed US $19.99 price fits intermittent hobby use and the low operating cost of local storage. Payment willingness and real revenue remain unvalidated until launch and actual purchases.
+Unpause pairs three free unfinished projects with a planned one-time Studio unlock. Finishing a project releases a free slot, while backups and existing memories remain accessible. RevenueCat supplies the configured lifetime entitlement, offering, restoration, and purchase identity handling. Native Test Store cancellation, failure, success, restore, and restart were verified with simulated transactions. The proposed US $19.99 price fits intermittent hobby use and the low operating cost of local storage. Payment willingness and real revenue remain unvalidated until launch and actual purchases.
 
 ### Best App for Galaxy
 
@@ -151,7 +159,7 @@ This is an internal readiness assessment, not an organizer score or a prediction
 | Category | Current case | Evidence still needed |
 | --- | --- | --- |
 | Design | Strongest product fit: coherent visual identity and a clear return interaction | Final release-device polish and the public eligible-store build |
-| HAMM | Understandable lifetime model and implemented RevenueCat plumbing | Configured premium access, real transactions, and payment validation |
+| HAMM | Configured lifetime model and verified native RevenueCat Test Store flows | Actual store transactions, premium judge access, and payment validation |
 | Galaxy | Separate integration/configuration and demonstrated Android preview | Physical Galaxy testing, meaningful device optimization evidence, and public listing |
 | Peace | Plausible benefit for people returning to creative hobbies | Observed benefit and a credible community-impact case |
 | Grand Prize | No supported growth case yet | Post-release acquisition/retention experiments and RevenueCat-recorded revenue |
@@ -162,7 +170,7 @@ The core project is ready for a transparent preview. A completed Devpost form ca
 ## Final form fields that cannot be invented
 
 - Actual public store URL, accessible from the United States.
-- Actual RevenueCat project identifier and configured qualifying purchase.
+- RevenueCat project ID is saved as `projb008cb09`; actual qualifying production-store monetization remains to be established.
 - Public YouTube or Vimeo URL that opens without a request for access.
 - Tested premium trial or promo code for judges.
 - Accurate first-public-release date within the qualifying window.
@@ -180,3 +188,5 @@ Public source is not mandatory for the ordinary categories. Category-specific in
 ## Source references for the story
 
 The maker behavior comes from a [first-person sewing discussion](https://www.reddit.com/r/sewing/comments/1u4dxvf/who_fizzles_out_before_finishing_a_sewing_project/). Competitive descriptions use official pages for [Krafio](https://www.krafio.app/?lang=en), [Purlsy](https://purlsy.com/), and [Tapcord](https://tapcord.app/for/crafts). Implementation and testing claims refer to the repository's [native evidence](release/native-build-evidence.md), [web QA evidence](release/web-qa-evidence.md), and [independent review](review.md). These references do not establish market prevalence or willingness to pay.
+
+Public standalone Android preview: [download and release notes](https://github.com/shi1720/Unpause-Preview/releases/tag/v1.0.0-preview.3). This ARM64 build uses a development test certificate, includes its JavaScript, and has no live checkout. The download returned HTTP 200 without authentication, with the verified APK byte count. Firebase Spark rejects executable uploads, so only the app and support pages use Firebase Hosting.

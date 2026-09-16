@@ -16,7 +16,7 @@ Firebase UID is the stable RevenueCat app-user ID through the existing billing f
 
 Without billing configured, `deleteUser` actually deletes the signed-in Firebase account. Firebase requires recent authentication; the app explains when the user must sign out/in and retry. No success is fabricated on a provider error.
 
-Before configuring any RevenueCat key with Firebase accounts, deploy and verify a secure backend and set `EXPO_PUBLIC_ACCOUNT_DELETION_URL`. The release gate requires this URL. No such backend is claimed to be deployed by this implementation. The client refuses direct Firebase-only deletion when billing is configured and this endpoint is missing.
+Before configuring any RevenueCat key with Firebase accounts, deploy and verify a secure backend and set `EXPO_PUBLIC_ACCOUNT_DELETION_URL`. The release gate requires this URL. The backend is now deployed, with successful disposable-account live verification recorded in [the deletion evidence](evidence/firebase-deletion-live-result.json). The client refuses direct Firebase-only deletion when billing is configured and this endpoint is missing.
 
 Endpoint contract:
 
@@ -30,3 +30,5 @@ Endpoint contract:
 A URL presence check is not proof of this behavior. Verify a real recent-login failure, revoked/foreign token rejection, attempted foreign UID, provider failure, retry, and successful deletion before enabling paid release.
 
 Sources: [Firebase user management](https://firebase.google.com/docs/auth/web/manage-users), [Firebase Auth API and native persistence](https://firebase.google.com/docs/reference/js/auth), [Firebase auth dependencies](https://firebase.google.com/docs/auth/web/custom-dependencies).
+
+The implementation is now available as a separate Supabase Edge Function. See [Firebase deletion backend](firebase-deletion-backend.md) for its deployment, required server secrets, asynchronous RevenueCat completion checks, durable retry behavior and local versus live verification boundaries. Test Store billing also requires this deletion endpoint.

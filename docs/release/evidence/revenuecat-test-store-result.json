@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-09-16T15:30:46.905530+00:00",
+  "package": "com.shivamgupta.unpause.sandbox",
+  "apk": "artifacts/builds/unpause-internal-test-store.apk",
+  "apkBytes": 73151967,
+  "apkSha256": "af0a94cd256e36c5bfaccbc62fd7de5c6a84313ffe56a1499efed6f06ea22eb4",
+  "buildType": "Android development build, debug signing, Metro on port 8082 required",
+  "revenueCatEnvironment": "Test Store, no real charge or store ownership",
+  "product": "unpause_studio_lifetime",
+  "entitlement": "studio",
+  "catalogUsdAmountMicros": 19990000,
+  "nativeSdkPriceString": "$19.98",
+  "priceNote": "Provider catalog is $19.99; actual native Test Store SDK displays $19.98. App displays provider-returned price without alteration.",
+  "checks": {
+    "offeringLoaded": true,
+    "cancelKeptLocked": true,
+    "providerFailedPurchaseKeptLocked": true,
+    "providerValidPurchaseActivatedEntitlement": true,
+    "restoreActive": true,
+    "coldRestartActive": true,
+    "persistentSandboxBanner": true,
+    "explicitNoChargePaywall": true,
+    "releaseVariantTestKeyRefusedBySDK": true,
+    "separatePackagePreservesGalaxyApp": true
+  },
+  "limits": [
+    "Test Store receipt is not a Samsung or Google purchase.",
+    "Development APK requires Metro; it is not a standalone store release.",
+    "Account-link and account-deletion billing integration not exercised in this anonymous test."
+  ],
+  "sourceHashes": {
+    "App.tsx": "42edb245d87a2b4cd2f2d89af2599b3a5d1b191d4f8fe76f80fb76c3798009e9",
+    "app.config.ts": "cdd9d46ec00d1843f11db06a503e7464971c5ec24e1163ae8ea6722fdce86fdd",
+    "eas.json": "30a98a5e51352f5167e9dfbf4c0cddc36213fb2152bb957fed6c08761481a636",
+    "scripts/check-release.mjs": "28f81c847961850cf013124445745d33bd93063e617b388d282bf3e996b38b2e",
+    "src/services/billing.ts": "793756c34d7456a4702ab25a822b92da841902a110e78093ec693a9721ac96c5",
+    "src/screens/Settings.tsx": "9245e67fae9065fdcc23b11f700bb6c44e2847cb8cacd497a5840ee810fba0ce",
+    "tests/accounts-billing.test.ts": "ae08ded9859268ba1c8d309b6d95ee65cb1ba651767e453a2bc53f2fef21e8e3",
+    "tests/release-config.test.ts": "05cb58e6051fc3490061f7a31f7598a98e3e02d2225734f46269e9d8f8eb1c87"
+  }
+}

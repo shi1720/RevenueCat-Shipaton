@@ -21,15 +21,15 @@ Use the [paste-ready Devpost story](../../docs/submission-story.md), [complete f
 
 ## Current evidence
 
-The web app is publicly hosted on Firebase. Real hosted signup, reload persistence, sign-in, sign-out, confirmed account deletion, and rejection after deletion passed. Local projects remain on the device after account deletion. Firebase is the primary optional account provider, with Supabase retained as a configurable fallback. Accounts do not synchronize projects.
+The web app is publicly hosted on Firebase. Real hosted signup, reload persistence, sign-in, sign-out, confirmed account deletion, and rejection after deletion passed. Local projects remain on the device after account deletion. Firebase is the primary optional account provider. Supabase hosts the deployed Firebase/RevenueCat coordinated deletion backend; its final 15 live checks passed. Accounts do not synchronize projects.
 
-The implementation passes **101 unit tests** and **30 desktop/mobile browser scenarios**. An installable Android emulator preview exists. Native bundle checks do not establish physical-device account persistence or a compiled iOS release. See [the second implementation review](../../docs/review-iteration2.md), [native evidence](../../docs/release/native-build-evidence.md), and [video evidence](../../docs/release/video-evidence.md).
+The implementation passes **154 unit tests** and **30 desktop/mobile browser scenarios**. An installable Android emulator preview exists. Native bundle checks do not establish physical-device account persistence or a compiled iOS release. See [the second implementation review](../../docs/review-iteration2.md), [native evidence](../../docs/release/native-build-evidence.md), and [video evidence](../../docs/release/video-evidence.md).
 
 ## Remaining release gates
 
-RevenueCat integration is implemented, but live store purchases, purchase-profile deletion, physical Galaxy purchase/restore verification, final signing, and eligible store publication remain pending. US $19.99 is a proposed lifetime Studio price. No customer traction or proven willingness to pay is claimed.
+RevenueCat is configured, and actual native Test Store cancellation, failure, success, restore, and cold restart passed. Those simulated transactions establish no production revenue. The Metro-dependent internal Test Store APK is separate from the earlier bundled preview. Samsung corporate commercial seller approval, actual production-store purchases, physical Galaxy acceptance, final signing, and eligible store publication remain pending. US $19.99 is a proposed lifetime Studio price. No customer traction or proven willingness to pay is claimed.
 
-The current demo shows native emulator interactions with illustrative projects. It does not demonstrate a completed purchase or store approval. The web app and public video do not substitute for the hackathon's qualifying store release and monetization requirements. See [owner setup](../../docs/OWNER_SETUP.md) and the [launch checklist](../../docs/release/launch-checklist.md).
+The current demo shows native emulator interactions with illustrative projects. It does not demonstrate a completed purchase or store approval. The [Devpost entry is submitted](https://devpost.com/software/unpause-k9p21y), with its store-release declaration still false. The web app, public video, and Test Store checks do not substitute for the hackathon's qualifying store release and monetization requirements. See [owner setup](../../docs/OWNER_SETUP.md) and the [launch checklist](../../docs/release/launch-checklist.md).
 
 ## Rebuild assets
 

@@ -1,0 +1,89 @@
+{
+  "checkedAt": "2026-09-16T15:38:08.492Z",
+  "endpoint": "https://ljguedfuxpadvddzfgsj.supabase.co/functions/v1/delete-firebase-account",
+  "firebaseProject": "unpause-studio",
+  "revenueCatProject": "projb008cb09",
+  "passed": true,
+  "checks": [
+    {
+      "name": "temporary RevenueCat customer created",
+      "passed": true,
+      "detail": "Created only the disposable Firebase UID for this run"
+    },
+    {
+      "name": "temporary customer exists before deletion",
+      "passed": true,
+      "detail": "Verified through RevenueCat v2"
+    },
+    {
+      "name": "foreign UID body rejected",
+      "passed": true,
+      "detail": "HTTP 400; both disposable identities retained"
+    },
+    {
+      "name": "foreign origin rejected",
+      "passed": true,
+      "detail": "HTTP 403; no permissive CORS"
+    },
+    {
+      "name": "tampered foreign-audience token rejected",
+      "passed": true,
+      "detail": "HTTP 401; test is tampered, not a genuine token issued by another project"
+    },
+    {
+      "name": "live deletion completes",
+      "passed": true,
+      "detail": "HTTP sequence 202, 202, 200; no queued response treated as success"
+    },
+    {
+      "name": "Firebase identity absent after success",
+      "passed": true,
+      "detail": "Firebase Admin returned auth/user-not-found"
+    },
+    {
+      "name": "RevenueCat customer absent after success",
+      "passed": true,
+      "detail": "RevenueCat returned resource_missing"
+    },
+    {
+      "name": "lost-response replay",
+      "passed": true,
+      "detail": "HTTP 200; same original ID token after Firebase deletion"
+    },
+    {
+      "name": "revoked token rejected",
+      "passed": true,
+      "detail": "First five requests: 401, 401, 401, 401, 401; identity retained"
+    },
+    {
+      "name": "distributed rate limit",
+      "passed": true,
+      "detail": "Sixth verified-subject request HTTP 429"
+    },
+    {
+      "name": "native request without Origin",
+      "passed": true,
+      "detail": "HTTP 200; authentication still required"
+    },
+    {
+      "name": "already absent RevenueCat customer is idempotent",
+      "passed": true,
+      "detail": "Firebase deleted only after RevenueCat missing-customer verification"
+    },
+    {
+      "name": "real stale login rejected",
+      "passed": true,
+      "detail": "HTTP 401; actual login older than five minutes retained"
+    },
+    {
+      "name": "disposable identity cleanup",
+      "passed": true,
+      "detail": "4 disposable identities tracked; 0 cleanup failures"
+    }
+  ],
+  "limitations": [
+    "No real customer or purchase was used.",
+    "Foreign-project case uses a tampered audience, not another project's genuine ID token.",
+    "Provider-outage injection and partial-failure replay remain covered by local dependency tests, not live production configuration changes."
+  ]
+}

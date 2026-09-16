@@ -6,9 +6,9 @@ Maker communities describe leaving notes with stored projects so they can recons
 
 ### What it does
 
-Unpause saves a handoff for an unfinished physical hobby: a photo, where you stopped, one tiny next action, and where the materials live.
+Unpause saves a handoff for an unfinished physical hobby: a photo, where you stopped, one next action, and where the materials live.
 
-When time opens up, choose your available time and energy. Find a project with a step that fits, open its resume card, and make a little. Leave a fresh checkpoint when you stop. Your photos, notes, and past sessions build a history of small returns.
+When time opens up, choose your available time and energy. Find a project with a step that fits, open its resume card, and make a little. Leave a checkpoint when you stop. Your photos, notes, and past sessions build a history of small returns.
 
 Three unfinished projects are free. Finishing one opens a slot for another idea. Studio is the planned lifetime upgrade for unlimited unfinished projects within device storage limits. Reminders, finished projects, and portable backups stay free.
 
@@ -16,11 +16,11 @@ Three unfinished projects are free. Finishing one opens a slot for another idea.
 
 Shivam Gupta created Unpause with AI-assisted research, implementation, and testing. React Native, Expo, and TypeScript share the core experience across Android, iOS, and web.
 
-The app works locally without signup. Firebase supports optional account identity, with Supabase retained as a configurable fallback. Signing in does not upload or synchronize project notes and photos.
+The app works locally without signup. Firebase supplies optional account identity. Supabase hosts coordinated Firebase/RevenueCat account deletion. Signing in does not upload or synchronize project notes and photos.
 
-RevenueCat integration handles lifetime offerings, verified Studio entitlements, purchase restoration, and account changes. Native storage uses bounded chunks and an atomic manifest. Validated backups preserve photos as well as text.
+RevenueCat handles lifetime Studio entitlements, restoration, and account identity across Galaxy, iOS, Google Play, and Test Store. Native storage uses bounded chunks and an atomic manifest. Validated backups preserve photos as well as text.
 
-Warm paper colors, violet accents, Fraunces headings, and original craft illustrations give the shelf its identity.
+Warm paper colors, Fraunces headings, and original craft illustrations make the shelf inviting.
 
 ### Challenges we ran into
 
@@ -30,7 +30,7 @@ We also protected unsaved drafts, prevented account changes from applying stale 
 
 ### Accomplishments that we're proud of
 
-The complete pause, return, make, and checkpoint loop works in a live web app and an installable Android preview. The latest implementation passes 101 unit tests and 30 desktop/mobile browser scenarios. The hosted app also passed real signup, session persistence, sign-in, sign-out, and account deletion. Android emulator checks exercise the native making workflow.
+The complete pause, return, make, and checkpoint loop works in a live web app and an installable Android preview. 154 unit tests and 30 browser scenarios pass. Hosted Firebase account flows and coordinated deletion passed live tests. The native RevenueCat Test Store also passed cancellation, simulated failure, success, restore, and cold restart. These simulated transactions do not establish production billing or revenue.
 
 The commercial model fits occasional hobby use: a useful free tier and one understandable lifetime upgrade. US $19.99 is the proposed price to validate with actual buyers.
 
@@ -42,7 +42,7 @@ Notes, Krafio, Purlsy, and Tapcord are credible alternatives. Unpause's bet is a
 
 ### What's next for Unpause
 
-Finish real store purchases, restoration, account/purchase-data deletion, physical-device testing, and a qualifying public store release. iOS source and build configuration are prepared; a compiled iOS binary remains to be produced.
+Resolve Samsung corporate commercial seller approval, then complete physical-device store purchases, signing, and a qualifying public release. iOS source and build configuration are prepared; a compiled iOS binary remains to be produced.
 
 Then invite makers to capture a handoff and return on another day. Observe whether they can start, whether they leave a second checkpoint, and whether Studio earns a purchase. Let that evidence guide better capture and craft-specific prompts.
 

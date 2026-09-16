@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-09-16T15:50:29.302812+00:00",
+  "apk": {
+    "path": "artifacts/builds/unpause-galaxy-preview.apk",
+    "sha256": "2d7db0e824a329bd8893a038b0bc9054cc82663c0488b9c93f436856014a4e2d",
+    "bytes": 37325300,
+    "package": "com.shivamgupta.unpause.galaxy",
+    "versionName": "1.0.0",
+    "versionCode": 1,
+    "minSdk": 24,
+    "targetSdk": 36,
+    "abi": "arm64-v8a",
+    "publicRelease": "https://github.com/shi1720/Unpause-Preview/releases/tag/v1.0.0-preview.3"
+  },
+  "checks": {
+    "signatureVerified": true,
+    "certificate": "CN=Android Debug",
+    "zipalign16KiBPassed": true,
+    "inPlaceUpgradeSucceeded": true,
+    "coldLaunchSucceeded": true,
+    "sampleStudioAndExactNextStepPreserved": true,
+    "accountDialogOpened": true,
+    "latestProcessRuntimeErrorLines": 0,
+    "deletionEndpointEmbedded": true,
+    "nativeAccountSignInDeletionOnThisApkVerified": false,
+    "fullyOfflineStartupOnThisApkVerified": false,
+    "temporaryIdentityDeletedByAdmin": true,
+    "temporaryCredentialFileRemoved": true,
+    "automationHelpersStopped": true,
+    "emulatorNetworkRestored": true,
+    "finalUi": "Home screen, local sample studio; no credential form visible"
+  },
+  "limitations": [
+    "Native account UI entry was stopped after ADB dropped characters, paced input stalled, and UIAutomator returned null roots. No native sign-in or deletion success is claimed on this exact APK.",
+    "The offline restart attempt was inconclusive because the early screenshot was still loading. The home screen rendered after networking was restored; this is not proof of fully offline startup.",
+    "Prior APK native account and offline tests remain historical. The separate live backend suite passed all 15 checks.",
+    "Emulator verification only; no physical Samsung device, actual store purchase, production signing or store publication."
+  ],
+  "sourceSnapshot": "source-snapshot-galaxy-final.json",
+  "screenshots": [
+    "artifacts/builds/native-final-evidence/before-update.png",
+    "artifacts/builds/native-final-evidence/after-update.png",
+    "artifacts/builds/native-final-evidence/final-idle.png"
+  ]
+}
