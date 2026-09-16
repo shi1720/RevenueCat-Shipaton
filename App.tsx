@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   BackHandler,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -232,6 +233,10 @@ function Workspace() {
   }, [loading, data.projects]);
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (Keyboard.isVisible()) {
+        Keyboard.dismiss();
+        return true;
+      }
       if (confirmation) {
         if (confirmBusy) return true;
         void confirmation.cancel?.().catch((e) => notify(e.message));
@@ -611,7 +616,13 @@ function Workspace() {
         visible={!!sheet}
         transparent
         animationType="fade"
-        onRequestClose={() => setSheet(null)}
+        onRequestClose={() => {
+          if (Keyboard.isVisible()) {
+            Keyboard.dismiss();
+            return;
+          }
+          setSheet(null);
+        }}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : undefined}
