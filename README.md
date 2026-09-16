@@ -12,7 +12,13 @@ You finally have ten spare minutes. The half-sewn bag is waiting—but where did
 
 Unpause keeps that context. Its signature loop is **choose a little time → read your last handoff → make one small step → leave a note for future you**. It works across sewing, woodworking, art, gardening, repairs, and other physical projects. There are no streaks, deadlines, or invented AI instructions.
 
+![Unpause dashboard with an illustrative sample studio](artifacts/screenshots/desktop-dashboard.png)
+
+*Actual web UI with clearly labeled sample projects. Native phone screenshots and a silent walkthrough are in the [submission kit](artifacts/submission/README.md).*
+
 ## Try it
+
+An installable Android preview is available in [GitHub Releases](https://github.com/shi1720/RevenueCat-Shipaton/releases). It runs offline without a development server and uses a test signing certificate. Accounts and purchases require your own provider configuration. The repository and its releases retain their existing private visibility.
 
 Requires Node.js 22 LTS and npm. No API key is needed for the local studio.
 
@@ -94,6 +100,8 @@ Vitest covers project transitions, import invariants, persistence failures, auth
 npx --yes deno check supabase/functions/delete-account/index.ts
 ```
 
+The completed local pass has **93 unit/service tests and 20 browser scenarios passing**, plus production exports and zero reported dependency-audit vulnerabilities. A real Android preview was compiled and launched offline on an emulator. Read the [verification ledger](docs/release/verification.md) for exact scope, native evidence, and checks that still require real provider accounts or physical devices.
+
 The production gate fails when credentials or public policy/support URLs are incomplete:
 
 ```sh
@@ -116,6 +124,7 @@ Samsung publishing has no registration/annual fee, but commercial seller approva
 
 ## Submission kit
 
+- [Complete artifact index and native walkthrough](artifacts/submission/README.md)
 - [Verbatim demo script and shot timeline](docs/submission.md)
 - [Editable pitch deck](artifacts/submission/Unpause-pitch-final.pptx)
 - [Two-page judge brief](artifacts/submission/Unpause-brief.pdf)

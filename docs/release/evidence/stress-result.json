@@ -1,0 +1,27 @@
+{
+  "fixtureBytes": 2723781,
+  "fixtureSha256": "8934f4a4a34d591facc5e9d6280f5590286ba3a4ab99e3cfa7a7c6241323fed0",
+  "manifest": {
+    "version": 1,
+    "generation": "8c3f929d-c55b-4e7d-aede-92e5c561f2b8",
+    "count": 11,
+    "bytes": 2723633
+  },
+  "reconstructedBytes": 2723633,
+  "projects": 1,
+  "checkpoints": 300,
+  "title": "Native archive verification",
+  "photoFiles": [
+    {
+      "uri": "file:///data/user/0/com.shivamgupta.unpause.galaxy/files/unpause-photos/da137535-b758-4c06-b7a9-2e1eb3ef5322.png",
+      "bytes": 123
+    },
+    {
+      "uri": "file:///data/user/0/com.shivamgupta.unpause.galaxy/files/unpause-photos/da137535-b758-4c06-b7a9-2e1eb3ef5322.png",
+      "bytes": 123
+    }
+  ],
+  "checkpointText": "The photo and 300 checkpoint archive survived a portable native import.",
+  "maxRowCharacters": 262144,
+  "notes": "Read-only SQLite inspection of synthetic fixture after actual UI import and force-stop/relaunch; root access is emulator-only."
+}

@@ -6,33 +6,39 @@ Reviewed September 16, 2026 against the actual source, unit/browser tests, deskt
 
 ## Ranked findings and disposition
 
-### P1 — Large valid histories could become unreadable on Android: fixed in code, native rebuild required
+### Native verification follow-up — keyboard drafts and bounded history: fixed
+
+Android API 36 testing found that Back could dismiss a checkpoint modal while hiding the keyboard, losing an unsaved note. The final handler dismisses a visible keyboard first; emulator verification confirms the typed text and modal remain. Saving the checkpoint and force-stopping/relaunching also preserves the committed note.
+
+The large-history fixture exposed unbounded card rendering in project history and Moments. Both now show ten notes per page. New browser scenarios use a valid archive above 2 MB with 300 checkpoints, verify forward/backward pagination, bound visible card counts, and confirm reload persistence. The full suite now passes 93 unit/service tests and 20 browser scenarios. This is an engineering follow-up, not a revision of the historical advisory score below.
+
+### P1 — Large valid histories could become unreadable on Android: fixed and included in the rebuilt preview
 
 The original storage implementation wrote all JSON into one AsyncStorage row. A valid text-only project with 250 maximum-length checkpoints measured **2,280,661 bytes**, even without photos. That exceeds Android's commonly encountered SQLite CursorWindow single-row capacity. The schema permits 2,000 checkpoints per project and 500 projects, so this was an achievable data-growth failure, not merely malformed input. Existing tests mocked storage and could not expose a native row limit.
 
 Fix implemented in `src/services/storage.ts`: native records now use Unicode-safe chunks of at most 256 KiB, with an atomic generation manifest. All new chunks are written before changing the pointer; a failed chunk or pointer write leaves the previous generation/legacy row intact. A workspace is capped at 20 MB of serialized record data. `plugins/withUnpauseAndroid.js` configures a 64 MB AsyncStorage database so old/new maximum-sized generations can coexist. Web retains its existing key and honest quota errors.
 
-Verification: unit tests round-trip a record above 2 MB, bound every row, preserve old data after a failed pointer write, migrate legacy rows safely, reject missing chunks without overwrite, recover explicitly, and reject records above 20 MB before mutation. The native builder was told to regenerate Gradle properties. A unit pass does not replace an actual Android load/restart test.
+Verification: unit tests round-trip a record above 2 MB, bound every row, preserve old data after a failed pointer write, migrate legacy rows safely, reject missing chunks without overwrite, recover explicitly, and reject records above 20 MB before mutation. The final standalone Android preview also imported a 2,723,781-byte valid archive with 300 checkpoints and an embedded PNG through Android DocumentsUI, then preserved the latest note and image after force-stop/relaunch. This is actual emulator evidence for the large-row regression; physical-device storage exhaustion and injected native filesystem failures remain separate tests.
 
 ### P1 — Photo deletion and canceled imports left private files behind: APIs fixed; UI integration added during review
 
 Deleting/erasing/replacing project records originally removed their URIs but not native `unpause-photos` files. Import created native photos before the replace-confirmation dialog, so Cancel also left files. A failed import photo write could leave a partially written file. Repeatedly choosing draft photos could grow storage indefinitely. These were privacy and capacity problems; “erase local projects” should not leave reachable app-owned photo files indefinitely.
 
-`src/services/media.ts` now provides `clearUnusedPhotos(projects)`, `discardImportedPhotos(candidate, protectedProjects)`, and `discardUnusedPhoto(uri, protectedProjects)`. They only delete UUID-named JPEG/PNG/WebP files inside the exact app-owned photo directory, preserve every live cover/history reference, reject traversal/outside paths, and report cleanup failures. A failed photo write removes its partial output. Native import failures discard previously materialized files. The root implementation is wiring cleanup to successful commits and canceled candidates/drafts.
+`src/services/media.ts` now provides `clearUnusedPhotos(projects)`, `discardImportedPhotos(candidate, protectedProjects)`, and `discardUnusedPhoto(uri, protectedProjects)`. They only delete UUID-named JPEG/PNG/WebP files inside the exact app-owned photo directory, preserve every live cover/history reference, reject traversal/outside paths, and report cleanup failures. A failed photo write removes its partial output. Native import failures discard previously materialized files. UI cleanup is now integrated with successful commits and canceled candidates/drafts; cover and checkpoint photo removal controls are also implemented.
 
 Release acceptance: verify on a native filesystem that project deletion, full erase, import replacement, canceled import, failed record save, abandoned camera/library draft, and changed draft photo remove only the correct files. Never prune before the record commit. Keep a current store snapshot rather than a stale React closure when deciding which photos are referenced. Cleanup errors after a committed save must not be presented as if the record write rolled back.
 
 ### P1 — Full photo backups could hit a limit with no clean recovery path: bounded fix implemented during review
 
-Native photo storage can grow beyond 30 MB while `exportBackup` refuses a serialized backup above 30 MB. A cover photo that also appears in checkpoint history is embedded repeatedly in the JSON. Several photos near the 5 MB per-photo limit can exhaust the backup budget. The error suggests individual project handoffs, but `exportProject` creates text without photos. There is no visible old-checkpoint-photo removal control. Users may have to discard project history to make a complete backup fit.
+At the time of the finding, native photo storage could grow beyond 30 MB while `exportBackup` refused a serialized backup above 30 MB. A cover photo that also appeared in checkpoint history was embedded repeatedly in the JSON. Several photos near the 5 MB per-photo limit could exhaust the backup budget. The error suggested individual project handoffs, but `exportProject` created text without photos, and no old-checkpoint-photo removal control was visible. Users could have been forced to discard project history to make a complete backup fit.
 
 Recommended fix: enforce a portable-backup size budget before accepting additional media, with a useful explanation and a way to remove/replace large photos; or implement complete per-project portable backup and a safe merge import. A streamed archive with a deduplicated photo manifest would be stronger but is a larger format change. Do not claim all photo archives are freely portable while the only complete export can become unavailable during ordinary use. Test multiple photos, repeated cover/history references, export limits, and the proposed recovery path.
 
-Implemented response: native `saveData` now calls `assertPortableBudget` before writing any row. It estimates compact JSON plus base64-encoded file sizes per reference, including repeated cover/history references, and refuses changes above **28 MB** to reserve room below the 30 MB export limit. File sizes are memoized; photos are not read into memory just for estimation. Web's entire embedded record is already capped at 20 MB. Exports now use compact JSON so their size follows this estimate. The root is adding cover/checkpoint photo removal controls. Three additional tests verify repeated-reference counting, no mutation on budget failure, acceptance below the limit, and missing-file errors. This protects new commits; an already damaged or legacy over-budget workspace still needs deliberate recovery, and file loss outside the app cannot be repaired by a size estimate.
+Implemented response: native `saveData` now calls `assertPortableBudget` before writing any row. It estimates compact JSON plus base64-encoded file sizes per reference, including repeated cover/history references, and refuses changes above **28 MB** to reserve room below the 30 MB export limit. File sizes are memoized; photos are not read into memory just for estimation. Web's entire embedded record is already capped at 20 MB. Exports now use compact JSON so their size follows this estimate. Cover/checkpoint photo removal controls are implemented. Three additional tests verify repeated-reference counting, no mutation on budget failure, acceptance below the limit, and missing-file errors. This protects new commits; an already damaged or legacy over-budget workspace still needs deliberate recovery, and file loss outside the app cannot be repaired by a size estimate.
 
 ### P1 — Pitch promised selectable energy while Home ignored energy: fixed during review
 
-The original Home called `suggestProjects(projects, minutes)` with no energy state/control. The pure function and unit tests supported energy, so those tests passed even though the feature described in the demo, listing, and business plan was missing from the experience. The root has now added Any/Gentle/Steady/Focused energy controls and passes the chosen value. Browser tests must verify visible filtering, including no-match states, before the voiceover demonstrates it.
+The original Home called `suggestProjects(projects, minutes)` with no energy state/control. The pure function and unit tests supported energy, so those tests passed even though the feature described in the demo, listing, and business plan was missing from the experience. Any/Gentle/Steady/Focused energy controls now pass the chosen value, and energy filtering is covered by the passing real-browser scenarios.
 
 ### P1 — Required external release evidence is still missing: operational gate, not an implementation defect
 
@@ -42,15 +48,15 @@ Store/commercial onboarding, owner-controlled credentials, physical Galaxy billi
 
 ### P2 — Sample mode sent a new user directly to a paywall: transition added during review
 
-The sample studio has three unfinished projects, occupying the free allowance. Clicking New project after exploring the product opens Studio before the user has created a real project. The only obvious way to start fresh was inside Settings. This undermines the strongest acquisition moment and can feel like a payment requirement to try the app.
+The original sample studio had three unfinished projects, occupying the free allowance. Clicking New project after exploring the product opened Studio before the user had created a real project. The only obvious way to start fresh was inside Settings. This undermined the strongest acquisition moment and could feel like a payment requirement to try the app.
 
 Add a prominent, explicit “Start my studio” transition in sample mode. Confirm removal of sample content, preserve real projects, and then open creation. Avoid silently deleting a sample project the user has modified. Do not solve this by trusting arbitrary imported `isSample` flags to confer permanent free capacity.
 
 The root added an explicit confirmation when transitioning from sample data to creating a real project. Verify that modified sample content is clearly described before removal and that real projects survive.
 
-### P2 — Notification taps did not return to the referenced project: being fixed during review
+### P2 — Notification taps did not return to the referenced project: handler implemented; native delivery unverified
 
-Reminder payloads already include a project ID, but the root originally had no notification-response handler. Tapping a reminder would open the application without restoring its specific context. The root is adding cold/warm response handling. Verify deleted projects, stale IDs, app restart, and permission denial on native hardware; browser tests cannot prove notifications.
+Reminder payloads already include a project ID, but the root originally had no notification-response handler. Tapping a reminder would open the application without restoring its specific context. Cold/warm response handling is now integrated. Actual native notification scheduling, delivery, and tap behavior remain untested. Verify deleted projects, stale IDs, app restart, and permission denial on native hardware; browser tests and an emulator cold launch cannot prove notifications.
 
 ### P2 — Import permits more free open projects: document a deliberate grace policy
 
@@ -86,9 +92,9 @@ The commercial weak point is differentiation and proof. Notes and craft trackers
 
 Next test: five to ten actual multi-hobby makers each capture their own paused object, return to it on another day, and compare the handoff with their current method. Record whether the saved next step was enough to begin and whether they leave a second checkpoint. Offer the configured upgrade without leading them. Report observations and real purchases, including negative results, rather than hypothetical conversion percentages.
 
-## Advisory scorecard
+## Historical advisory scorecard
 
-These are subjective 0–10 internal ratings aligned with category intent. They are not official weights and must not be published as judge results.
+These are the original subjective 0–10 internal ratings aligned with category intent, preserved without rescoring after the verification addendum below. They are not official weights and must not be published as judge results. Descriptions in this table reflect the evidence available at the original scoring point.
 
 | Dimension | Product/implementation only, external credentials excluded | Current complete entry, external evidence included | Reason |
 | --- | ---: | ---: | --- |
@@ -113,4 +119,28 @@ Ignoring external credentials, the implementation is approximately **7.4/10** at
 - TypeScript passed after the integrated fixes. Native config introspection confirmed the 64 MB AsyncStorage setting. These checks are still distinct from a final signed binary and physical-device verification.
 - Physical devices, live accounts, real purchases, signed store artifacts, publication, and submitted video were not verified by this reviewer.
 
-Verify the integrated P1 fixes through the final UI/native flows, rerun the full suite, verify a real native build/device, and then prioritize the external release path and authentic user feedback.
+The recommendation at the original review cutoff was to verify the integrated P1 fixes through final UI/native flows, rerun the full suite, and then prioritize the external release path and authentic user feedback. The following addendum records subsequent progress without changing the historical score.
+
+## Final verification addendum — September 16, 2026
+
+This documentation-only update records final results supplied by the primary implementation and native-build agents. It does not claim that this reviewer independently repeated those runs. The earlier **7.4/10** subjective implementation assessment is unchanged; successful checks are evidence of resolved defects, not a reason to inflate a historical judge score.
+
+| Finding / evidence | Final disposition | Remaining limit |
+| --- | --- | --- |
+| Automated application tests | **93 unit tests passed.** | Mocked service tests do not verify live Supabase or payment-provider behavior. |
+| Real-browser scenarios | **20 scenarios passed**, including energy filtering. | Browser results do not prove native permissions, notifications, camera behavior, or Galaxy billing. |
+| Native storage generations and capacity | Implemented, tested, and included in the rebuilt preview. | Large-workspace and disk-failure behavior still warrants physical Android verification. |
+| Photo cleanup and removal | Scoped cleanup APIs, commit/cancel integration, and cover/checkpoint removal controls are implemented. | Confirm the complete file lifecycle on native hardware; record-level browser tests alone cannot inspect physical-device files. |
+| Portable photo budget | Precommit 28 MB estimate, 20 MB record cap, compact exports, and explicit reduction controls are implemented. | Previously damaged/over-budget data and externally missing photo files still require deliberate recovery. |
+| Energy matching | UI controls and passing browser coverage are implemented. | No claim of measured time savings or improved user outcomes follows from functional tests. |
+| Notification project routing | Cold/warm tap-response handler is integrated. | Actual native scheduling, delivery, and tap behavior are **not yet verified**. |
+| Android native compilation | **arm64 Galaxy standalone preview compiled** with bundled JavaScript. | This is a preview artifact, not evidence of production store signing or certification. |
+| APK checks | APK signature and **16 KiB alignment verified**. | Signature validity does not establish an owner-controlled production signing identity or store acceptance. |
+| Offline runtime smoke test | Emulator offline cold launch completed in **683 ms**, with no runtime errors observed in that run. | This is one emulator observation, not a performance benchmark, a full native end-to-end test, or physical Galaxy evidence. |
+| Native visual/demo evidence | Native screenshots, video capture, and the build-evidence record are being finalized separately. | Local captures are not a publicly uploaded, compliant submission video or an approved store listing. |
+
+The most serious identified implementation gaps now have code fixes and automated evidence. The remaining release blockers are explicit: owner/commercial-store onboarding, production signing, real Supabase account flows, real RevenueCat purchases and restores on a **physical Galaxy device**, public policy/support pages, an approved US-accessible store listing, a compliant public demo video, and completed Devpost submission. Native notification delivery and broader physical-device testing also remain unverified. iOS source compatibility/configuration must not be represented as a completed iOS native build or App Store release.
+
+See [native build evidence](release/native-build-evidence.md) for the separately maintained artifact/toolchain record and [launch checklist](release/launch-checklist.md) for the remaining external gates. The native agent is finalizing that evidence record; if it still shows an earlier in-progress state, use the final logs/artifacts and updated record before making a public build claim.
+
+**Release verdict remains:** substantially better verified implementation, but not yet a qualifying published hackathon entry or a validated business. Prioritize the remaining real-device/live-service checks, legitimate publication, and authentic user feedback over additional feature expansion.
