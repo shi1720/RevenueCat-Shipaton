@@ -1,0 +1,45 @@
+{
+  "cli": { "version": ">= 16.0.0", "appVersionSource": "remote" },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "environment": "development",
+      "env": { "EXPO_PUBLIC_ANDROID_STORE": "google" },
+      "android": { "buildType": "apk" },
+      "ios": { "simulator": true }
+    },
+    "preview": {
+      "distribution": "internal",
+      "environment": "preview",
+      "env": { "EXPO_PUBLIC_ANDROID_STORE": "google" },
+      "android": { "buildType": "apk" },
+      "ios": { "simulator": true }
+    },
+    "preview-galaxy": {
+      "extends": "preview",
+      "env": { "EXPO_PUBLIC_ANDROID_STORE": "galaxy" }
+    },
+    "production-google": {
+      "distribution": "store",
+      "environment": "production",
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_ANDROID_STORE": "google" },
+      "android": { "buildType": "app-bundle" }
+    },
+    "production-galaxy": {
+      "distribution": "store",
+      "environment": "production",
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_ANDROID_STORE": "galaxy" },
+      "android": { "buildType": "apk" }
+    },
+    "production-ios": {
+      "distribution": "store",
+      "environment": "production",
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_ANDROID_STORE": "google" },
+      "ios": { "simulator": false }
+    }
+  }
+}

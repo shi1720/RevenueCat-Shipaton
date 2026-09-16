@@ -1,0 +1,15 @@
+project_id = "unpause"
+
+[functions.delete-account]
+# The function explicitly calls Auth.getUser(access_token); this supports newer
+# asymmetric Supabase JWT keys without relying on legacy gateway verification.
+verify_jwt = false
+
+[auth]
+site_url = "http://localhost:8081"
+additional_redirect_urls = ["http://localhost:8081/**", "unpause://auth/callback**"]
+minimum_password_length = 10
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true

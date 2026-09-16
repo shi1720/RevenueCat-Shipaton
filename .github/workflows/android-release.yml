@@ -1,0 +1,52 @@
+name: Request Android production build
+
+on:
+  workflow_dispatch:
+    inputs:
+      store:
+        description: Store to build for (does not submit or publish)
+        required: true
+        type: choice
+        options: [google, galaxy]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-production-${{ inputs.store }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: production
+    env:
+      CI: '1'
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
+      EXPO_OWNER: ${{ vars.EXPO_OWNER }}
+      EXPO_PUBLIC_ANDROID_STORE: ${{ inputs.store }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Require owner-controlled EAS identity
+        run: |
+          node -e "for (const key of ['EXPO_TOKEN','EAS_PROJECT_ID']) { if (!process.env[key]) { console.error(key + ' must be configured in the production GitHub environment.'); process.exitCode = 1; } }"
+      - run: npm ci
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Pull the same production environment used by EAS
+        run: eas env:pull --environment production --path .env.local --non-interactive
+      - name: Validate production configuration
+        run: node scripts/check-release.mjs --platform android --require-eas --check-urls
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run export:native
+      - name: Request a signed build and wait for its actual result
+        run: eas build --platform android --profile "production-${EXPO_PUBLIC_ANDROID_STORE}" --non-interactive --wait
