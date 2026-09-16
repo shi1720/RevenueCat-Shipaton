@@ -47,3 +47,7 @@ Resolve Samsung corporate commercial seller approval, then complete physical-dev
 Then invite makers to capture a handoff and return on another day. Observe whether they can start, whether they leave a second checkpoint, and whether Studio earns a purchase. Let that evidence guide better capture and craft-specific prompts.
 
 The immediate aim is concrete: help someone reopen the drawer and keep making.
+
+**Try Unpause:** [Web app](https://unpause-studio.web.app) · [Android preview and submission kit](https://github.com/shi1720/RevenueCat-Shipaton/releases/tag/v1.0.0-preview.3) · [Source code](https://github.com/shi1720/RevenueCat-Shipaton) · [Demo video](https://www.youtube.com/watch?v=jXpOlvDShRY) · [PDF brief](https://github.com/shi1720/RevenueCat-Shipaton/releases/download/v1.0.0-preview.3/Unpause-brief.pdf) · [Pitch deck](https://github.com/shi1720/RevenueCat-Shipaton/releases/download/v1.0.0-preview.3/Unpause-pitch-final.pptx).
+
+The Android download is a development preview. A public Galaxy Store listing is pending Samsung corporate commercial seller approval.

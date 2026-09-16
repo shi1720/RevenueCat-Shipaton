@@ -22,7 +22,7 @@ Unpause keeps that context. Its signature loop is **choose a little time → rea
 
 ## Try it
 
-An installable Android preview is available in [GitHub Releases](https://github.com/shi1720/RevenueCat-Shipaton/releases). It runs offline without a development server and uses a test signing certificate. Preview 2 includes real Firebase accounts and encrypted native sessions. Production purchases still require actual store products and approval. A separate internal Test Store APK is debug-only and needs Metro; it is not this offline preview. The repository and its releases retain their existing private visibility.
+An installable Android preview is available in [GitHub Releases](https://github.com/shi1720/RevenueCat-Shipaton/releases). It runs offline without a development server and uses a test signing certificate. Preview 2 includes real Firebase accounts and encrypted native sessions. Production purchases still require actual store products and approval. A separate internal Test Store APK is debug-only and needs Metro; it is not this offline preview. The source repository and release downloads are public. The latest standalone APK and its exact test limits are in [Preview 3](https://github.com/shi1720/RevenueCat-Shipaton/releases/tag/v1.0.0-preview.3).
 
 Requires Node.js 22 LTS and npm. No API key is needed for the local studio.
 
