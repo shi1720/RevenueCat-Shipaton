@@ -11,6 +11,40 @@ import {
 } from "react-native";
 import type { LucideIcon } from "lucide-react-native";
 import { c, common, font } from "./theme";
+
+export function HistoryPager({
+  page,
+  pages,
+  onPage,
+}: {
+  page: number;
+  pages: number;
+  onPage: (page: number) => void;
+}) {
+  if (pages <= 1) return null;
+  return (
+    <View style={{ gap: 10 }}>
+      <Text accessibilityLiveRegion="polite" style={common.muted}>
+        Notes page {page + 1} of {pages}
+      </Text>
+      <View style={[common.row, { flexWrap: "wrap" }]}>
+        <Button
+          title="Newer notes"
+          kind="secondary"
+          disabled={page === 0}
+          onPress={() => onPage(page - 1)}
+        />
+        <Button
+          title="Older notes"
+          kind="secondary"
+          disabled={page >= pages - 1}
+          onPress={() => onPage(page + 1)}
+        />
+      </View>
+    </View>
+  );
+}
+
 export function Button({
   title,
   onPress,

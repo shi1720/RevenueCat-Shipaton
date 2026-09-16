@@ -23,7 +23,7 @@ import {
   Trash2,
 } from "lucide-react-native";
 import { c, common, font } from "../components/theme";
-import { Button, Chip, Field } from "../components/ui";
+import { Button, Chip, Field, HistoryPager } from "../components/ui";
 import { ProjectArt } from "../components/ProjectArt";
 import { useDraftPhotos } from "../hooks/useDraftPhotos";
 import { useApp } from "../store";
@@ -63,6 +63,8 @@ export function ProjectDetail({
   const { width } = useWindowDimensions();
   const [now, setNow] = useState(Date.now());
   const [busy, setBusy] = useState(false);
+  const [historyPage, setHistoryPage] = useState(0);
+  useEffect(() => setHistoryPage(0), [id]);
   const p = data.projects.find((p) => p.id === id);
   const session =
     data.activeSession?.projectId === id ? data.activeSession : null;
@@ -73,6 +75,8 @@ export function ProjectDetail({
   }, [session]);
   if (!p) return <Button title="Back to your shelf" onPress={back} />;
   const cp = p.checkpoints[0];
+  const historyPages = Math.ceil(p.checkpoints.length / 10);
+  const currentPage = Math.min(historyPage, historyPages - 1);
   const elapsed = session
     ? Math.max(0, Math.floor((now - Date.parse(session.startedAt)) / 1000))
     : 0;
@@ -433,78 +437,91 @@ export function ProjectDetail({
         <Text style={{ fontFamily: font.serif, fontSize: 27, color: c.ink }}>
           The story so far
         </Text>
-        {p.checkpoints.map((point, i) => (
-          <View
-            key={point.id}
-            style={[
-              common.card,
-              {
-                gap: 10,
-                borderLeftWidth: 3,
-                borderLeftColor: i === 0 ? c.purple : c.line,
-              },
-            ]}
-          >
-            <View style={[common.row, { justifyContent: "space-between" }]}>
-              <Text
-                style={[common.label, { color: i === 0 ? c.purple : c.muted }]}
-              >
-                {i === 0 ? "LATEST NOTE" : "CHECKPOINT"}
-              </Text>
-              <Text style={[common.muted, { fontSize: 11 }]}>
-                {new Date(point.createdAt).toLocaleDateString()} ·{" "}
-                {point.minutes} min
-              </Text>
-            </View>
-            <Text style={common.body}>
-              {point.stoppedAt || "A new beginning."}
-            </Text>
-            <Text style={common.muted}>Next: {point.nextStep}</Text>
-            {point.photoUri && (
-              <Button
-                title="Remove checkpoint photo"
-                kind="ghost"
-                onPress={() =>
-                  confirm(
-                    "Remove this photo?",
-                    "Keep the written checkpoint and remove its image. This also removes the cover if it uses this same image.",
-                    async () => {
-                      await update((d) => ({
-                        ...d,
-                        projects: d.projects.map((x) =>
-                          x.id === id
-                            ? {
-                                ...x,
-                                coverUri:
-                                  x.coverUri === point.photoUri
-                                    ? undefined
-                                    : x.coverUri,
-                                checkpoints: x.checkpoints.map((cp) =>
-                                  cp.id === point.id
-                                    ? { ...cp, photoUri: undefined }
-                                    : cp,
-                                ),
-                              }
-                            : x,
-                        ),
-                      }));
-                      await clearUnusedPhotos(snapshot().projects).catch((e) =>
-                        notify(e.message),
-                      );
+        <HistoryPager
+          page={currentPage}
+          pages={historyPages}
+          onPage={setHistoryPage}
+        />
+        {p.checkpoints
+          .slice(currentPage * 10, (currentPage + 1) * 10)
+          .map((point, i) => (
+            <View
+              key={point.id}
+              style={[
+                common.card,
+                {
+                  gap: 10,
+                  borderLeftWidth: 3,
+                  borderLeftColor:
+                    currentPage === 0 && i === 0 ? c.purple : c.line,
+                },
+              ]}
+            >
+              <View style={[common.row, { justifyContent: "space-between" }]}>
+                <Text
+                  style={[
+                    common.label,
+                    {
+                      color: currentPage === 0 && i === 0 ? c.purple : c.muted,
                     },
-                  )
-                }
-              />
-            )}
-            {point.photoUri && (
-              <Image
-                source={{ uri: point.photoUri }}
-                accessibilityLabel="Checkpoint photo"
-                style={{ height: 150, borderRadius: 12, marginTop: 6 }}
-              />
-            )}
-          </View>
-        ))}
+                  ]}
+                >
+                  {currentPage === 0 && i === 0 ? "LATEST NOTE" : "CHECKPOINT"}
+                </Text>
+                <Text style={[common.muted, { fontSize: 11 }]}>
+                  {new Date(point.createdAt).toLocaleDateString()} ·{" "}
+                  {point.minutes} min
+                </Text>
+              </View>
+              <Text style={common.body}>
+                {point.stoppedAt || "A new beginning."}
+              </Text>
+              <Text style={common.muted}>Next: {point.nextStep}</Text>
+              {point.photoUri && (
+                <Button
+                  title="Remove checkpoint photo"
+                  kind="ghost"
+                  onPress={() =>
+                    confirm(
+                      "Remove this photo?",
+                      "Keep the written checkpoint and remove its image. This also removes the cover if it uses this same image.",
+                      async () => {
+                        await update((d) => ({
+                          ...d,
+                          projects: d.projects.map((x) =>
+                            x.id === id
+                              ? {
+                                  ...x,
+                                  coverUri:
+                                    x.coverUri === point.photoUri
+                                      ? undefined
+                                      : x.coverUri,
+                                  checkpoints: x.checkpoints.map((cp) =>
+                                    cp.id === point.id
+                                      ? { ...cp, photoUri: undefined }
+                                      : cp,
+                                  ),
+                                }
+                              : x,
+                          ),
+                        }));
+                        await clearUnusedPhotos(snapshot().projects).catch(
+                          (e) => notify(e.message),
+                        );
+                      },
+                    )
+                  }
+                />
+              )}
+              {point.photoUri && (
+                <Image
+                  source={{ uri: point.photoUri }}
+                  accessibilityLabel="Checkpoint photo"
+                  style={{ height: 150, borderRadius: 12, marginTop: 6 }}
+                />
+              )}
+            </View>
+          ))}
       </View>
       <Button
         title="Delete project"

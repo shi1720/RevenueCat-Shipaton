@@ -18,7 +18,7 @@ import {
   Sparkles,
 } from "lucide-react-native";
 import { c, common, font } from "../components/theme";
-import { Button, Chip, Empty } from "../components/ui";
+import { Button, Chip, Empty, HistoryPager } from "../components/ui";
 import { ProjectArt } from "../components/ProjectArt";
 import { useApp } from "../store";
 import { daysSince, suggestProjects } from "../domain/projects";
@@ -469,6 +469,7 @@ export function Shelf({
 }
 export function Moments({ open }: { open: (id: string) => void }) {
   const { data } = useApp();
+  const [historyPage, setHistoryPage] = useState(0);
   const entries = data.projects
     .flatMap((p) =>
       p.checkpoints
@@ -476,6 +477,8 @@ export function Moments({ open }: { open: (id: string) => void }) {
         .map((cp) => ({ p, cp })),
     )
     .sort((a, b) => b.cp.createdAt.localeCompare(a.cp.createdAt));
+  const historyPages = Math.max(1, Math.ceil(entries.length / 10));
+  const currentPage = Math.min(historyPage, historyPages - 1);
   return (
     <View style={{ gap: 23 }}>
       <Text style={common.label}>PROGRESS, WITHOUT THE PRESSURE</Text>
@@ -483,40 +486,50 @@ export function Moments({ open }: { open: (id: string) => void }) {
       <Text style={common.muted}>
         Your notes to future you, collected along the way.
       </Text>
+      <HistoryPager
+        page={currentPage}
+        pages={historyPages}
+        onPage={setHistoryPage}
+      />
       {!entries.length ? (
         <Empty
           title="The first return is a lovely start."
           text="After a making session, leave a checkpoint. Each one becomes a little record of your progress."
         />
       ) : (
-        entries.map(({ p, cp }) => (
-          <Pressable
-            key={`${p.id}-${cp.id}`}
-            accessibilityRole="button"
-            accessibilityLabel={`View checkpoint for ${p.title}`}
-            onPress={() => open(p.id)}
-            style={[common.card, { gap: 13 }]}
-          >
-            <View style={[common.row, { justifyContent: "space-between" }]}>
-              <Text style={[common.label, { color: c.purple }]}>{p.title}</Text>
-              <Text style={common.muted}>
-                {new Date(cp.createdAt).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </Text>
-            </View>
-            <Text
-              style={{ fontFamily: font.serif, fontSize: 23, color: c.ink }}
+        entries
+          .slice(currentPage * 10, (currentPage + 1) * 10)
+          .map(({ p, cp }) => (
+            <Pressable
+              key={`${p.id}-${cp.id}`}
+              accessibilityRole="button"
+              accessibilityLabel={`View checkpoint for ${p.title}`}
+              onPress={() => open(p.id)}
+              style={[common.card, { gap: 13 }]}
             >
-              {cp.stoppedAt || "A small step forward."}
-            </Text>
-            <Text style={common.muted}>Next time: {cp.nextStep}</Text>
-            <Text style={[common.muted, { fontSize: 11 }]}>
-              {cp.minutes} minutes of making
-            </Text>
-          </Pressable>
-        ))
+              <View style={[common.row, { justifyContent: "space-between" }]}>
+                <Text style={[common.label, { color: c.purple }]}>
+                  {p.title}
+                </Text>
+                <Text style={common.muted}>
+                  {new Date(cp.createdAt).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </Text>
+              </View>
+              <Text
+                style={{ fontFamily: font.serif, fontSize: 23, color: c.ink }}
+                numberOfLines={4}
+              >
+                {cp.stoppedAt || "A small step forward."}
+              </Text>
+              <Text style={common.muted}>Next time: {cp.nextStep}</Text>
+              <Text style={[common.muted, { fontSize: 11 }]}>
+                {cp.minutes} minutes of making
+              </Text>
+            </Pressable>
+          ))
       )}
     </View>
   );
