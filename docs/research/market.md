@@ -56,7 +56,7 @@ Never hide an existing user's memories behind a purchase requirement. Downgrade 
 
 A lifetime purchase fits intermittent hobby use and avoids subscription guilt. The paywall should appear after a user has experienced a successful return or reaches the active-project allowance. RevenueCat coordinates entitlements and purchase restoration; the commercial reason to buy is keeping more projects ready to return to.
 
-Keep the core loop local and deterministic. Structured user context delivers primary value without per-session inference costs. Optional future AI should reduce capture effort—turn a voice note into editable fields—rather than invent technical instructions. Lifetime Studio must not promise unlimited cloud media or perpetual costly services; backup/export can remain user-controlled. If recurring infrastructure is added later, fund and scope it separately.
+Keep the core loop local and deterministic. Structured user context delivers primary value without per-session inference costs. Optional future AI should reduce capture effort, turn a voice note into editable fields, rather than invent technical instructions. Lifetime Studio must not promise unlimited cloud media or perpetual costly services; backup/export can remain user-controlled. If recurring infrastructure is added later, fund and scope it separately.
 
 Illustrative arithmetic, **not a forecast or recurring revenue**: 1,000 purchases at $19.99 produce $19,990 in gross billings before platform charges, taxes, refunds, infrastructure, and support. Future support obligations remain after the one-time payment. Do not call lifetime sales ARR or claim a break-even point without measured costs.
 

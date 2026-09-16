@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { Button } from "../components/ui";
 import { c, common } from "../components/theme";
 import { useApp } from "../store";
@@ -34,9 +34,10 @@ export function Recovery({
     }
   };
   return (
-    <View
-      style={{
-        flex: 1,
+    <ScrollView
+      style={{ flex: 1, backgroundColor: c.bg }}
+      contentContainerStyle={{
+        flexGrow: 1,
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: c.bg,
@@ -97,6 +98,6 @@ export function Recovery({
           </Text>
         )}
       </View>
-    </View>
+    </ScrollView>
   );
 }

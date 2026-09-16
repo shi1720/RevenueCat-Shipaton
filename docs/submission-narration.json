@@ -1,0 +1,52 @@
+{
+  "title": "Unpause native preview narration",
+  "source_video": "artifacts/submission/unpause-native-walkthrough.mp4",
+  "source_duration_seconds": 76.993,
+  "narrator": "Synthetic voice, third person. Do not impersonate or clone Shivam Gupta.",
+  "status": "Native Android emulator preview. No real purchase or public store release shown.",
+  "segments": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 5,
+      "text": "Meet Unpause, created by Shivam Gupta. Leave yourself a way back.",
+      "words": 11
+    },
+    {
+      "start_seconds": 5,
+      "end_seconds": 17,
+      "text": "You have ten free minutes, but the next step is unclear and the materials have moved. Unpause keeps the context you need together.",
+      "words": 23
+    },
+    {
+      "start_seconds": 17,
+      "end_seconds": 33,
+      "text": "Before stopping, leave yourself a handoff: what you finished, one small next action, and where the pieces live. Here, a new checkpoint gives the next session a clear place to begin.",
+      "words": 31
+    },
+    {
+      "start_seconds": 33,
+      "end_seconds": 40,
+      "text": "Add a photo when it helps. Your notes and photos stay on your device.",
+      "words": 14
+    },
+    {
+      "start_seconds": 40,
+      "end_seconds": 54,
+      "text": "Each return becomes part of the project's story. You can revisit earlier notes, keep making, or finish the project. The goal is to make the next beginning easier.",
+      "words": 28
+    },
+    {
+      "start_seconds": 54,
+      "end_seconds": 60,
+      "text": "Choose the time and energy you have. Find a project with a step that fits.",
+      "words": 15
+    },
+    {
+      "start_seconds": 60,
+      "end_seconds": 77,
+      "text": "Three unfinished projects are free. Studio is the planned lifetime upgrade through RevenueCat. Live purchases and store release are still pending. Backups stay free, and your memories remain yours. Unpause. Leave yourself a way back.",
+      "words": 35
+    }
+  ],
+  "word_count": 157
+}

@@ -124,9 +124,12 @@ test("sample studio time matching, free cap and honest unavailable purchases", a
   await page
     .getByRole("button", { name: "Sign in or create an account", exact: true })
     .click();
-  await expect(
-    page.getByRole("button", { name: "Sign in", exact: true }).last(),
-  ).toBeDisabled();
+  const signInButton = page
+    .getByRole("button", { name: "Sign in", exact: true })
+    .last();
+  if (process.env.E2E_AUTH_CONFIGURED === "1")
+    await expect(signInButton).toBeEnabled();
+  else await expect(signInButton).toBeDisabled();
 });
 test("empty form validation and edited next-step persistence", async ({
   page,

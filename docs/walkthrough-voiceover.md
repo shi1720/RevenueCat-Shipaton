@@ -6,7 +6,7 @@ The recording is actual Android emulator interaction with clearly labeled illust
 
 ## 0:00–0:05 · The next step
 
-This is Unpause—a way back into the things you love making.
+This is Unpause, a way back into the things you love making.
 
 ## 0:05–0:17 · Begin a session
 

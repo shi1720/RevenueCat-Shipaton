@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
   Platform,
@@ -26,6 +26,7 @@ import { c, common, font } from "../components/theme";
 import { Button, Chip, Field, HistoryPager } from "../components/ui";
 import { ProjectArt } from "../components/ProjectArt";
 import { useDraftPhotos } from "../hooks/useDraftPhotos";
+import { useFormSafety, type ReportFormSafety } from "../hooks/useFormSafety";
 import { useApp } from "../store";
 import {
   canCreateProject,
@@ -559,12 +560,14 @@ export function ProjectForm({
   notify,
   studio,
   paywall,
+  onSafetyChange,
 }: {
   project?: Project;
   done: (id: string) => void;
   notify: Notice;
   studio: boolean;
   paywall: () => void;
+  onSafetyChange?: ReportFormSafety;
 }) {
   const { data, update, snapshot } = useApp();
   const [draft, setDraft] = useState<ProjectDraft>({
@@ -580,9 +583,18 @@ export function ProjectForm({
   const photoDraft = useDraftPhotos(data.projects, notify);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const operation = useRef(false);
+  const initialDraft = useRef(JSON.stringify(draft));
+  useFormSafety(
+    JSON.stringify(draft) !== initialDraft.current,
+    busy || photoBusy,
+    onSafetyChange,
+  );
   const patch = (value: Partial<ProjectDraft>) =>
     setDraft((d) => ({ ...d, ...value }));
   const save = async () => {
+    if (operation.current) return;
     const error = validateDraft(draft);
     if (error) {
       setError(error);
@@ -592,6 +604,7 @@ export function ProjectForm({
       paywall();
       return;
     }
+    operation.current = true;
     setBusy(true);
     try {
       const id = project?.id || Crypto.randomUUID();
@@ -637,17 +650,39 @@ export function ProjectForm({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save your project.");
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   };
+  const choosePhoto = async (source: "library" | "camera") => {
+    if (operation.current) return;
+    operation.current = true;
+    setPhotoBusy(true);
+    try {
+      const uri = await pickPhoto(source);
+      if (uri) {
+        photoDraft.track(uri);
+        patch({ coverUri: uri });
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not open photos.");
+    } finally {
+      operation.current = false;
+      setPhotoBusy(false);
+    }
+  };
   return (
-    <View style={{ gap: 22 }}>
+    <View
+      style={{ gap: 22 }}
+      pointerEvents={busy || photoBusy ? "none" : "auto"}
+    >
       <Text style={common.muted}>
         {project
           ? "Make the next return even easier."
           : "You don’t need a plan for the whole thing. Just a place to begin."}
       </Text>
       <Field
+        editable={!busy && !photoBusy}
         label="Project name"
         placeholder="The Sunday tote"
         value={draft.title}
@@ -668,6 +703,7 @@ export function ProjectForm({
         </View>
       </View>
       <Field
+        editable={!busy && !photoBusy}
         label="A little about it"
         placeholder="What are you making, and where are you so far?"
         multiline
@@ -676,6 +712,7 @@ export function ProjectForm({
         maxLength={1000}
       />
       <Field
+        editable={!busy && !photoBusy}
         label="Your next tiny step"
         placeholder="Pin the straps to the top edge."
         hint="Something you could do with your hands, in one sitting."
@@ -685,6 +722,7 @@ export function ProjectForm({
         maxLength={1000}
       />
       <Field
+        editable={!busy && !photoBusy}
         label="Where are the pieces?"
         placeholder="In the basket beside the sewing machine."
         multiline
@@ -707,7 +745,7 @@ export function ProjectForm({
       </View>
       <View style={{ gap: 10 }}>
         <Text style={s.fieldLabel}>The energy it needs</Text>
-        <View style={common.row}>
+        <View style={[common.row, { flexWrap: "wrap" }]}>
           {(["gentle", "steady", "focused"] as Energy[]).map((energy) => (
             <Chip
               key={energy}
@@ -728,17 +766,8 @@ export function ProjectForm({
       <Button
         title={draft.coverUri ? "Change project photo" : "Add a project photo"}
         kind="secondary"
-        onPress={async () => {
-          try {
-            const uri = await pickPhoto();
-            if (uri) {
-              photoDraft.track(uri);
-              patch({ coverUri: uri });
-            }
-          } catch (e) {
-            notify(e instanceof Error ? e.message : "Could not open photos.");
-          }
-        }}
+        onPress={() => choosePhoto("library")}
+        busy={photoBusy}
       />
       {!!draft.coverUri && (
         <Button
@@ -751,19 +780,8 @@ export function ProjectForm({
         <Button
           title="Take a project photo"
           kind="secondary"
-          onPress={async () => {
-            try {
-              const uri = await pickPhoto("camera");
-              if (uri) {
-                photoDraft.track(uri);
-                patch({ coverUri: uri });
-              }
-            } catch (e) {
-              setError(
-                e instanceof Error ? e.message : "Could not open the camera.",
-              );
-            }
-          }}
+          onPress={() => choosePhoto("camera")}
+          busy={photoBusy}
         />
       )}
       {error && (
@@ -787,10 +805,12 @@ export function CheckpointForm({
   project: p,
   done,
   notify,
+  onSafetyChange,
 }: {
   project: Project;
   done: () => void;
   notify: Notice;
+  onSafetyChange?: ReportFormSafety;
 }) {
   const { data, update, snapshot } = useApp();
   const session =
@@ -804,11 +824,28 @@ export function CheckpointForm({
   const photoDraft = useDraftPhotos(data.projects, notify);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const operation = useRef(false);
+  const initialMaterials = useRef(p.checkpoints[0].materials);
+  useFormSafety(
+    Boolean(
+      stoppedAt ||
+      nextStep ||
+      blocker ||
+      photoUri ||
+      materials !== initialMaterials.current ||
+      nextMinutes !== p.nextMinutes,
+    ),
+    busy || photoBusy,
+    onSafetyChange,
+  );
   const save = async () => {
+    if (operation.current) return;
     if (!nextStep.trim()) {
       setError("Leave future you one small next step.");
       return;
     }
+    operation.current = true;
     setBusy(true);
     try {
       const now = new Date().toISOString();
@@ -838,11 +875,32 @@ export function CheckpointForm({
         e instanceof Error ? e.message : "Could not save your checkpoint.",
       );
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   };
+  const choosePhoto = async (source: "library" | "camera") => {
+    if (operation.current) return;
+    operation.current = true;
+    setPhotoBusy(true);
+    try {
+      const uri = await pickPhoto(source);
+      if (uri) {
+        photoDraft.track(uri);
+        setPhoto(uri);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not open photos.");
+    } finally {
+      operation.current = false;
+      setPhotoBusy(false);
+    }
+  };
   return (
-    <View style={{ gap: 22 }}>
+    <View
+      style={{ gap: 22 }}
+      pointerEvents={busy || photoBusy ? "none" : "auto"}
+    >
       <View
         style={{
           backgroundColor: c.lilac,
@@ -865,6 +923,7 @@ export function CheckpointForm({
         </Text>
       </View>
       <Field
+        editable={!busy && !photoBusy}
         label="Where did you stop?"
         placeholder="Straps are pinned. Left the needle at the first blue pin."
         multiline
@@ -873,6 +932,7 @@ export function CheckpointForm({
         maxLength={4000}
       />
       <Field
+        editable={!busy && !photoBusy}
         label="What’s the next tiny step?"
         placeholder="Sew the first strap, then turn the bag around."
         multiline
@@ -894,6 +954,7 @@ export function CheckpointForm({
         </View>
       </View>
       <Field
+        editable={!busy && !photoBusy}
         label="Where did you put everything?"
         multiline
         value={materials}
@@ -901,6 +962,7 @@ export function CheckpointForm({
         maxLength={2000}
       />
       <Field
+        editable={!busy && !photoBusy}
         label="Anything to sort out first?"
         placeholder="Optional: buy matching thread, wait for paint to dry…"
         multiline
@@ -920,17 +982,8 @@ export function CheckpointForm({
           photoUri ? "Change checkpoint photo" : "Save a photo of this moment"
         }
         kind="secondary"
-        onPress={async () => {
-          try {
-            const uri = await pickPhoto();
-            if (uri) {
-              photoDraft.track(uri);
-              setPhoto(uri);
-            }
-          } catch (e) {
-            notify(e instanceof Error ? e.message : "Could not open photos.");
-          }
-        }}
+        onPress={() => choosePhoto("library")}
+        busy={photoBusy}
       />
       {!!photoUri && (
         <Button
@@ -943,19 +996,8 @@ export function CheckpointForm({
         <Button
           title="Take a checkpoint photo"
           kind="secondary"
-          onPress={async () => {
-            try {
-              const uri = await pickPhoto("camera");
-              if (uri) {
-                photoDraft.track(uri);
-                setPhoto(uri);
-              }
-            } catch (e) {
-              setError(
-                e instanceof Error ? e.message : "Could not open the camera.",
-              );
-            }
-          }}
+          onPress={() => choosePhoto("camera")}
+          busy={photoBusy}
         />
       )}
       {error && (

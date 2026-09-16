@@ -6,9 +6,13 @@
   <p>Created by <strong>Shivam Gupta</strong> · RevenueCat Shipaton 2026</p>
 </div>
 
+**[Open the live app](https://unpause-studio.web.app)** · [Privacy](https://unpause-studio.web.app/privacy) · [Terms](https://unpause-studio.web.app/terms) · [Support](https://unpause-studio.web.app/support)
+
+The hosted app includes real Firebase email/password account integration. Projects and photos remain local to your device; accounts do not sync them. **101 unit tests and 30 browser scenarios pass.** Payments are not enabled yet. The existing Android preview was compiled and tested on an emulator before the latest Firebase integration; a refreshed native binary and physical-device account/billing checks remain separate release evidence. iOS source bundles successfully, but no signed iOS build or store publication is claimed.
+
 ## Why this exists
 
-You finally have ten spare minutes. The half-sewn bag is waiting—but where did you stop? Which pieces were cut? What was the next step?
+You finally have ten spare minutes. The half-sewn bag is waiting, but where did you stop? Which pieces were cut? What was the next step?
 
 Unpause keeps that context. Its signature loop is **choose a little time → read your last handoff → make one small step → leave a note for future you**. It works across sewing, woodworking, art, gardening, repairs, and other physical projects. There are no streaks, deadlines, or invented AI instructions.
 
@@ -18,7 +22,7 @@ Unpause keeps that context. Its signature loop is **choose a little time → rea
 
 ## Try it
 
-An installable Android preview is available in [GitHub Releases](https://github.com/shi1720/RevenueCat-Shipaton/releases). It runs offline without a development server and uses a test signing certificate. Accounts and purchases require your own provider configuration. The repository and its releases retain their existing private visibility.
+An installable Android preview is available in [GitHub Releases](https://github.com/shi1720/RevenueCat-Shipaton/releases). It runs offline without a development server and uses a test signing certificate. Its bundled account capabilities depend on the release version; new source builds support Firebase accounts. Purchases still require owner-controlled store configuration. The repository and its releases retain their existing private visibility.
 
 Requires Node.js 22 LTS and npm. No API key is needed for the local studio.
 
@@ -53,7 +57,7 @@ Expo Go can preview core features on a compatible SDK. Real store purchases requ
 | Photos | Library selection on web/native; camera capture on native; local durable storage |
 | Gentle reminder | Optional local notification tomorrow at 6 p.m.; explicit permission and cancellation |
 | Data ownership | Portable JSON backup with embedded photos, validated restore, readable text handoff |
-| Account | Optional Supabase email/password signup, sign-in, recovery, logout, and account deletion |
+| Account | Firebase email/password signup, sign-in, hosted reset, logout, and account deletion; optional Supabase fallback |
 | Studio | RevenueCat lifetime entitlement, native purchases, restore, and account identity handling |
 | Responsive UI | Phone navigation, wider project layout, tablet/desktop sidebar, resizable Android activity |
 
@@ -63,7 +67,7 @@ Expo Go can preview core features on a compatible SDK. Real store purchases requ
 
 The repository includes the implementation, tests, native build profiles, and submission materials. **A store release has not been published.** Missing provider configuration is shown honestly; the app never simulates a successful login, payment, or cloud sync.
 
-Live release still requires owner-controlled Supabase and RevenueCat configuration, store products, production signing, Samsung commercial seller verification (for Galaxy), real store-device purchase testing, public support/policy pages, and store review. Start with [Shivam’s owner setup](docs/OWNER_SETUP.md), then the [launch checklist](docs/release/launch-checklist.md) and [native build evidence](docs/release/native-build-evidence.md). A locally built APK is a testing artifact, not proof of Galaxy acceptance.
+Live paid release still requires RevenueCat configuration, store products, a secure Firebase/purchase-profile deletion backend, production signing, Samsung commercial seller verification (for Galaxy), real store-device purchase testing, and store review. Public web hosting and policy/support pages are available; live account/email evidence is tracked separately. Start with [Shivam’s owner setup](docs/OWNER_SETUP.md), then the [launch checklist](docs/release/launch-checklist.md) and [native build evidence](docs/release/native-build-evidence.md). A locally built APK is a testing artifact, not proof of Galaxy acceptance.
 
 ## Monetization
 
@@ -79,7 +83,7 @@ Copy the template locally, then fill only your own provider values:
 cp .env.example .env.local
 ```
 
-Read [accounts and billing setup](docs/release/accounts-and-billing.md). Public client keys go in Expo public variables; Supabase service-role and RevenueCat secret keys belong only in the deletion Edge Function’s server environment. Never commit credentials or signing material.
+Read [Firebase account setup](docs/release/firebase-accounts.md) and [accounts and billing setup](docs/release/accounts-and-billing.md). Public client configuration goes in Expo public variables; administrative and RevenueCat secret keys belong only in the appropriate authenticated deletion backend. Never commit credentials or signing material.
 
 Entitlement identifier: `studio`. Offering: your current RevenueCat offering with a **lifetime/non-consumable package**. Android supports separate Google and Galaxy variants. Simulated Test Store keys are intentionally rejected by the production billing adapter.
 
@@ -88,8 +92,10 @@ Entitlement identifier: `studio`. Offering: your current RevenueCat offering wit
 ```sh
 npm run typecheck
 npm test
-npm run export:web
-npm run test:e2e
+npm run export:web -- --clear
+# For the configured Firebase build:
+E2E_AUTH_CONFIGURED=1 npm run test:e2e
+# For a credential-free export, omit E2E_AUTH_CONFIGURED.
 npm run export:native
 npx expo-doctor
 ```
@@ -100,7 +106,7 @@ Vitest covers project transitions, import invariants, persistence failures, auth
 npx --yes deno check supabase/functions/delete-account/index.ts
 ```
 
-The completed local pass has **93 unit/service tests and 20 browser scenarios passing**, plus production exports and zero reported dependency-audit vulnerabilities. A real Android preview was compiled and launched offline on an emulator. Read the [verification ledger](docs/release/verification.md) for exact scope, native evidence, and checks that still require real provider accounts or physical devices.
+The completed local pass has **101 unit/service tests and 30 browser scenarios passing**, plus production exports and zero reported dependency-audit vulnerabilities. A real Android preview was compiled and launched offline on an emulator. Read the [verification ledger](docs/release/verification.md) for exact scope, native evidence, and checks that still require real provider accounts or physical devices.
 
 The production gate fails when credentials or public policy/support URLs are incomplete:
 
@@ -149,7 +155,7 @@ scripts/                Build, release checks, asset and submission generation
 tests/                  Unit, integration, and browser tests
 ```
 
-Project content stays local. Supabase handles optional identity; RevenueCat handles entitlements and store transactions. Media is copied to app-owned files on native, embedded into backups when exported, and validated before restore. Destructive actions require an explicit in-app confirmation.
+Project content stays local. Firebase handles configured identity, with Supabase available as an earlier-provider fallback; RevenueCat handles configured entitlements and store transactions. Media is copied to app-owned files on native, embedded into backups when exported, and validated before restore. Destructive actions require an explicit in-app confirmation.
 
 ## Credits and licensing
 

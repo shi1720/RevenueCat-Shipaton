@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 export const c = {
   bg: "#F8F7F3",
   paper: "#FFFFFF",
@@ -12,13 +12,20 @@ export const c = {
   greenLight: "#E9F0E8",
   coral: "#DC8F76",
 };
+// Web keeps readable system fallbacks when a font request fails. Native font
+// families must remain single registered names, so only web receives CSS stacks.
+const family = (name: string, serif = false) =>
+  Platform.OS === "web"
+    ? `"${name}", ${serif ? "Georgia, serif" : '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'}`
+    : name;
 export const font = {
-  regular: "DMSans_400Regular",
-  medium: "DMSans_500Medium",
-  bold: "DMSans_700Bold",
-  serif: "Fraunces_500Medium",
-  serifItalic: "Fraunces_500Medium_Italic",
+  regular: family("DMSans_400Regular"),
+  medium: family("DMSans_500Medium"),
+  bold: family("DMSans_700Bold"),
+  serif: family("Fraunces_500Medium", true),
+  serifItalic: family("Fraunces_500Medium_Italic", true),
 };
+
 export const common = StyleSheet.create({
   body: {
     fontFamily: font.regular,

@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Platform, Text, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Linking, Platform, Text, View } from "react-native";
+import { useFormSafety, type ReportFormSafety } from "../hooks/useFormSafety";
 import {
   ArrowRight,
   Check,
@@ -24,6 +25,7 @@ import { cancelReminder } from "../services/reminders";
 import { blankData } from "../domain/projects";
 import {
   authConfigured,
+  authProvider,
   deleteAccount,
   resetPassword,
   signIn,
@@ -40,6 +42,16 @@ import {
   type PurchasesPackage,
 } from "../services/billing";
 import type { Notice } from "./Project";
+const publicLinks = {
+  privacy:
+    process.env.EXPO_PUBLIC_PRIVACY_URL ||
+    "https://unpause-studio.web.app/privacy",
+  terms:
+    process.env.EXPO_PUBLIC_TERMS_URL || "https://unpause-studio.web.app/terms",
+  support:
+    process.env.EXPO_PUBLIC_SUPPORT_URL ||
+    "https://unpause-studio.web.app/support",
+};
 export function Settings({
   notify,
   account,
@@ -254,6 +266,11 @@ export function Settings({
             onPress={() => legal("privacy")}
           />
           <Button title="Terms" kind="ghost" onPress={() => legal("terms")} />
+          <Button
+            title="Support"
+            kind="ghost"
+            onPress={() => run(() => Linking.openURL(publicLinks.support))}
+          />
         </View>
         <View style={{ alignItems: "center", gap: 7, paddingVertical: 15 }}>
           <Heart size={16} color={c.coral} />
@@ -272,9 +289,11 @@ export function Settings({
 export function AccountForm({
   done,
   recovery = false,
+  onSafetyChange,
 }: {
   done: () => void;
   recovery?: boolean;
+  onSafetyChange?: ReportFormSafety;
 }) {
   const [mode, setMode] = useState<"login" | "signup" | "reset">(
     recovery ? "reset" : "login",
@@ -284,7 +303,11 @@ export function AccountForm({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const operation = useRef(false);
+  useFormSafety(false, busy, onSafetyChange);
   const submit = async () => {
+    if (operation.current) return;
+    operation.current = true;
     setBusy(true);
     setError("");
     setMessage("");
@@ -297,7 +320,9 @@ export function AccountForm({
       } else if (mode === "reset") {
         await resetPassword(email);
         setMessage(
-          "If an account exists for this email, a reset link is on its way. Open it on this device.",
+          authProvider === "firebase"
+            ? "If an account exists for this email, a reset link is on its way. Set your new password on the linked page, then return here to sign in."
+            : "If an account exists for this email, a reset link is on its way. Open it on this device.",
         );
       } else if (mode === "signup") {
         const result = await signUp(email, password);
@@ -315,6 +340,7 @@ export function AccountForm({
         e instanceof Error ? e.message : "Could not complete that request.",
       );
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   };
@@ -350,6 +376,7 @@ export function AccountForm({
       )}
       {!recovery && (
         <Field
+          editable={!busy}
           label="Email address"
           value={email}
           onChangeText={setEmail}
@@ -361,6 +388,7 @@ export function AccountForm({
       )}
       {(recovery || mode !== "reset") && (
         <Field
+          editable={!busy}
           label={recovery ? "New password" : "Password"}
           value={password}
           onChangeText={setPassword}
@@ -418,18 +446,22 @@ export function Paywall({
   legal,
   account,
   signedIn,
+  onSafetyChange,
 }: {
   studio: boolean;
   refresh: () => Promise<void>;
   legal: (type: "privacy" | "terms") => void;
   account: () => void;
   signedIn: boolean;
+  onSafetyChange?: ReportFormSafety;
 }) {
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(billingConfigured);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const operation = useRef(false);
+  useFormSafety(false, busy, onSafetyChange);
   useEffect(() => {
     let live = true;
     if (billingConfigured)
@@ -448,6 +480,8 @@ export function Paywall({
     };
   }, []);
   const buy = async (restore = false) => {
+    if (operation.current) return;
+    operation.current = true;
     setBusy(true);
     setError("");
     try {
@@ -465,6 +499,7 @@ export function Paywall({
         e instanceof Error ? e.message : "The purchase could not be completed.",
       );
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   };
@@ -601,6 +636,7 @@ export function Paywall({
   );
 }
 export function Legal({ type }: { type: "privacy" | "terms" }) {
+  const [linkError, setLinkError] = useState("");
   const paragraphs =
     type === "privacy"
       ? [
@@ -610,7 +646,7 @@ export function Legal({ type }: { type: "privacy" | "terms" }) {
           ],
           [
             "Accounts and purchases",
-            "If configured and used, Supabase processes your email and account credentials for authentication. RevenueCat and your chosen app store process customer identifiers, receipts, and purchase status. Unpause does not receive payment-card details. Signing in does not sync projects.",
+            "If you create an account, our authentication provider (Firebase, or Supabase in earlier configured builds) processes your email and account credentials. RevenueCat and your chosen app store process customer identifiers, receipts, and purchase status. Unpause does not receive payment-card details. Signing in does not sync projects.",
           ],
           [
             "Photos and reminders",
@@ -622,7 +658,7 @@ export function Legal({ type }: { type: "privacy" | "terms" }) {
           ],
           [
             "Support",
-            "Created and operated by Shivam Gupta. Before public launch, a verified support contact and public policy URL must be added to the store listing. This policy describes the current app implementation. Last updated September 16, 2026.",
+            "Created and operated by Shivam Gupta. Visit our support page for account, purchase, and data questions. This policy describes the current app implementation. Last updated September 16, 2026.",
           ],
         ]
       : [
@@ -657,6 +693,35 @@ export function Legal({ type }: { type: "privacy" | "terms" }) {
           <Text style={common.body}>{body}</Text>
         </View>
       ))}
+      <Button
+        title={
+          type === "privacy" ? "Open full privacy policy" : "Open full terms"
+        }
+        kind="secondary"
+        onPress={() => {
+          void Linking.openURL(publicLinks[type]).catch(() =>
+            setLinkError(
+              "The page could not be opened. Check your connection and try again.",
+            ),
+          );
+        }}
+      />
+      <Button
+        title="Contact support"
+        kind="ghost"
+        onPress={() => {
+          void Linking.openURL(publicLinks.support).catch(() =>
+            setLinkError(
+              "The support page could not be opened. Check your connection and try again.",
+            ),
+          );
+        }}
+      />
+      {!!linkError && (
+        <Text accessibilityRole="alert" style={{ color: "#A64343" }}>
+          {linkError}
+        </Text>
+      )}
     </View>
   );
 }

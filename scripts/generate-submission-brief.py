@@ -58,21 +58,22 @@ for number, heading, detail in rows:
 
 label('Why this problem',665)
 para('Makers already describe losing their construction plans after a pause and leaving next-step notes with stored projects. [1] That is qualitative evidence of the behavior, not a market-size estimate or proof that people will pay.',44,691,507,10.7,15.6)
+para('<link href="https://unpause-studio.web.app" color="#5753A3">Try: unpause-studio.web.app</link><br/><link href="https://www.youtube.com/watch?v=jXpOlvDShRY" color="#5753A3">Watch: youtube.com/watch?v=jXpOlvDShRY</link>',44,746,507,9.2,13.2)
 c.showPage()
 
 background(2)
-para('A focused utility.<br/>An honest launch plan.',43,80,510,33,38,INK,'Fraunces')
+para('Live web app.<br/>A clear path to stores.',43,80,510,33,38,INK,'Fraunces')
 label('Free to start. Studio once.',185)
-para('<b>Free:</b> three unfinished projects, with completed projects, session history, reminders, and user-controlled backups. <b>Studio:</b> a proposed US $19.99 lifetime purchase for unlimited unfinished projects, subject to technical storage limits. Actual checkout uses the localized store price.',44,211,507,11,15.7)
+para('<b>Free:</b> three unfinished projects, with completed projects, session history, reminders, and user-controlled backups. <b>Studio:</b> a proposed US $19.99 lifetime purchase for unlimited unfinished projects, subject to technical storage limits. Live store purchases remain pending.',44,211,507,11,15.7)
 para('1,000 purchases would produce <b>$19,990 in gross sales</b> before fees, refunds, taxes, support, and infrastructure. This is illustrative arithmetic, not a forecast, profit, or recurring revenue. Local storage avoids per-session inference costs.',44,289,507,10.8,15.6)
 
 label('A real competitive landscape',366)
 para('Krafio and Purlsy organize craft projects and progress. Tapcord connects physical craft items to their history. [2-4] Unpause bets on a short return ritual organized around available time and the next physical action. No durable moat or unique-invention claim is established.',44,392,507,10.8,15.6)
 
-label('Implementation and release gates',470)
-para('<b>Repository implementation:</b> Expo/React Native, local project handoffs, session history, validated backup import, and RevenueCat lifetime integration. Optional Supabase identity does not synchronize project data.',44,496,507,10.8,15.6)
-para('<b>Before public launch:</b> configure seller accounts and store products, verify real purchases on a Galaxy device, sign and submit the binary, pass store review, and record the final device demo. A source build or preview does not meet the public-release requirement. [5]',44,554,507,10.8,15.6)
-para('<b>Next validation:</b> observe makers returning to their own projects, compare with Notes, and test actual Studio purchases. No customer traction, measured time savings, or revenue is claimed.',44,631,507,10.8,15.6)
+label('Verified experience and store release gates',470)
+para('<b>Verified:</b> live web app and native Android preview. <b>101 unit tests and 30 browser scenarios pass.</b> Hosted Firebase signup, sign-in, reload persistence, sign-out, and deletion are verified. Accounts do not sync projects. Supabase remains an optional fallback. RevenueCat integration is implemented.',44,496,507,10.8,15.6)
+para('<b>Before store launch:</b> verify RevenueCat purchases and restores on Galaxy hardware, deploy purchase-data deletion, complete signing, and pass store review. [5] iOS source and bundles are prepared. A compiled iOS binary remains pending.',44,586,507,10.8,15.6)
+para('<b>Next validation:</b> observe makers returning to their own projects and test actual Studio purchases. Customer traction and willingness to pay remain unvalidated.',44,659,507,10.8,15.6)
 
 sources=[
 ('1', 'Sewing community discussion', 'https://www.reddit.com/r/sewing/comments/1u4dxvf/who_fizzles_out_before_finishing_a_sewing_project/'),
@@ -82,6 +83,6 @@ sources=[
 ('5', 'Shipaton 2026 official rules', 'https://revenuecat-shipaton-2026.devpost.com/rules'),
 ]
 source_text='Sources checked 16 September 2026. '+ '  '.join(f'[{n}] <link href="{url}" color="#5753A3">{name}</link>.' for n,name,url in sources)
-para(source_text,44,706,507,8.2,11.8,MUTED)
+para(source_text,44,723,507,8.2,11.8,MUTED)
 c.save()
 print(OUT)

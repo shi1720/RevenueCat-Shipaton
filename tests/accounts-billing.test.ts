@@ -77,6 +77,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.unstubAllEnvs();
   for (const name of [
+    "FIREBASE_API_KEY",
+    "FIREBASE_PROJECT_ID",
+    "FIREBASE_AUTH_DOMAIN",
+    "FIREBASE_APP_ID",
     "SUPABASE_URL",
     "SUPABASE_ANON_KEY",
     "REVENUECAT_IOS_KEY",
@@ -336,6 +340,28 @@ describe("real-store lifetime billing", () => {
     await expect(billing.purchaseStudio(pkg)).rejects.toThrow("not active yet");
     mocks.purchases.purchasePackage.mockResolvedValue({ customerInfo: active });
     expect(await billing.purchaseStudio(pkg)).toBe(true);
+  });
+  it("does not invalidate an in-flight entitlement request on a token refresh for the same account", async () => {
+    vi.stubEnv("EXPO_PUBLIC_REVENUECAT_IOS_KEY", "appl_public");
+    const billing = await import("../src/services/billing");
+    await billing.initializeBilling("same-account");
+    let release!: (value: typeof active) => void;
+    mocks.purchases.getCustomerInfo.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    const status = billing.getStudioStatus();
+    await vi.waitFor(() =>
+      expect(mocks.purchases.getCustomerInfo).toHaveBeenCalledOnce(),
+    );
+    const refreshIdentity = billing.initializeBilling("same-account");
+    release(active);
+    expect(await status).toBe(true);
+    await refreshIdentity;
+    expect(mocks.purchases.logIn).not.toHaveBeenCalled();
+    expect(mocks.purchases.logOut).not.toHaveBeenCalled();
   });
   it("explains web restore limitations and requires identity before web checkout", async () => {
     mocks.platform.OS = "web";

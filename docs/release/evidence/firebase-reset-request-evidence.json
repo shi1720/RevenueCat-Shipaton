@@ -1,0 +1,11 @@
+{
+  "at": "2026-09-16T13:42:22.717Z",
+  "requestStatus": 200,
+  "confirmation": "If an account exists for this email, a reset link is on its way. Set your new password on the linked page, then return here to sign in.",
+  "mailboxDeliveryVerified": false,
+  "accountExistsVerified": true,
+  "requestEmailMatchesIdentity": true,
+  "checkedAt": "2026-09-16T13:45:28.727Z",
+  "testIdentityDeleted": true,
+  "mailboxResult": "Authorized Gmail search, including spam/trash, found no matching message during the test window. Delivery and reset-link completion remain unverified."
+}

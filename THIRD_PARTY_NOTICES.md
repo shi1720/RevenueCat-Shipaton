@@ -1,8 +1,8 @@
 # Third-party notices
 
-- **DM Sans** — Colophon Foundry and its contributors. SIL Open Font License 1.1. Bundled from `@expo-google-fonts/dm-sans`.
-- **Fraunces** — Undercase Type and its contributors. SIL Open Font License 1.1. Bundled from `@expo-google-fonts/fraunces`.
-- **Lucide** — Lucide Contributors. ISC license. Icons rendered through `lucide-react-native`.
+- **DM Sans**: Colophon Foundry and its contributors. SIL Open Font License 1.1. Bundled from `@expo-google-fonts/dm-sans`.
+- **Fraunces**: Undercase Type and its contributors. SIL Open Font License 1.1. Bundled from `@expo-google-fonts/fraunces`.
+- **Lucide**: Lucide Contributors. ISC license. Icons rendered through `lucide-react-native`.
 - **Expo**, **React**, **React Native**, **React Native Web**, **Supabase JS**, and other dependencies retain their published licenses in their installed package directories. Exact versions are recorded in `package-lock.json`.
 - **RevenueCat SDKs** retain their package licenses and the terms of the RevenueCat service. Store use requires the owner's respective store agreement.
 

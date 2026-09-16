@@ -39,14 +39,14 @@ If the Android project is missing, the script generates it from Expo config. Nat
 
 ## Compiled artifacts
 
-Both Android variants compiled successfully on September 16, 2026. The final bundled preview uses source commit `d5d803d` ([source hashes](evidence/source-snapshot.json)). All 29 recorded source/asset hashes were independently checked against the final workspace.
+Both Android variants compiled successfully on September 16, 2026. The configured Firebase preview was rebuilt from the final frozen workspace, with 41 recorded source/asset hashes in [source hashes](evidence/source-snapshot.json). The snapshot records its base git commit plus uncommitted final source changes; hashes identify the exact build inputs. Earlier local-only verification used commit `d5d803d`.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| `artifacts/builds/unpause-galaxy-preview.apk` | Offline, non-debuggable, debug-signed sideload preview | `6cddc8be9bbee102b0a33ea547084ad373e23dd444e9a340faf7d172e943bdb9` |
+| `artifacts/builds/unpause-galaxy-preview.apk` | Offline, non-debuggable, debug-signed sideload preview | `149e2ca14efabba7139459d0627d7f82ada7840fcf1d44f89b004b61fec3c842` |
 | `artifacts/builds/unpause-galaxy-debug.apk` | Development client; expects Metro | `0acaa89c275194ee289cd8185d9f1ea4dfdab14b0474183477f70c4558335846` |
 
-Preview metadata: package `com.shivamgupta.unpause.galaxy`, version 1.0.0 (code 1), ARM64, minimum Android API 24, target/compile API 36. Gradle `assembleRelease` succeeded with 690 tasks; final incremental build took 27 seconds. The packaged JavaScript is bundled Hermes bytecode. No Metro server is needed.
+Preview metadata: package `com.shivamgupta.unpause.galaxy`, version 1.0.0 (code 1), ARM64, minimum Android API 24, target/compile API 36. Gradle `assembleRelease` succeeded with 690 tasks; final incremental build took 28 seconds. The packaged JavaScript is bundled Hermes bytecode. No Metro server is needed.
 
 The APK signature verifies. Its certificate is **CN=Android Debug**, SHA-256 `fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c`. This is deliberately a test artifact, not a production store release. `zipalign -c -P 16` passes; this verifies APK alignment, not execution on a 16 KiB page-size device (the emulator uses 4 KiB pages).
 
@@ -67,7 +67,7 @@ Verified through actual UI interactions:
 
 ## Large archive and photo durability proof
 
-The final `6cddc8…` APK imported a **2,723,781-byte** JSON backup through the real Android document picker. The fixture contained one project, 300 checkpoints, and a valid embedded PNG shared by the cover and latest checkpoint. After confirmation, process force-stop and offline relaunch, the project, exact latest note, and photo rendered successfully.
+The earlier local-only `6cddc8…` APK imported a **2,723,781-byte** JSON backup through the real Android document picker. The fixture contained one project, 300 checkpoints, and a valid embedded PNG shared by the cover and latest checkpoint. After confirmation, process force-stop and offline relaunch, the project, exact latest note, and photo rendered successfully.
 
 Read-only inspection of the emulator's synthetic test database confirmed all **300 checkpoints** remained, with **11 chunks**, maximum row length **262,144 characters**, and reconstructed JSON size **2,723,633 bytes**. The embedded PNG was materialized into a 123-byte file under the app's durable `files/unpause-photos/` directory; both photo references resolve to that same file. This directly exercises the fix for Android's per-row storage limit. Emulator ADB root was used only to inspect this synthetic fixture after the UI test; the app itself has no root requirement.
 
@@ -82,12 +82,18 @@ All screenshots are direct native `adb screencap` output, without stretching, cr
 - `artifacts/builds/native-evidence/tablet-landscape.png`: 2560 × 1600 resize evidence, excluded from store screenshot sets.
 - `artifacts/submission/unpause-native-walkthrough.mp4`: 76.993 seconds, H.264, 1080 × 2160, 6,855,134 bytes; actual silent Android emulator interactions. This is source footage for the narrated submission; it does not demonstrate a purchase.
 
-Screenshots and walkthrough were captured before the final history-pagination-only patch; sample UI is unchanged. The final APK additionally limits long history rendering to ten notes per page. Test evidence and source hashes identify the exact final build independently of these sample assets.
+Screenshots and walkthrough were captured before the final history-pagination-only patch; sample UI is unchanged. The configured preview also includes live Firebase accounts and draft safeguards. It limits long history rendering to ten notes per page. Test evidence and source hashes identify the exact final build independently of these sample assets.
 
 Approximate walkthrough timing: 0–5 seconds shows the next step; 5–17 the session timer; 17–33 a checkpoint being typed; 33–40 photo options and save; 40–54 the saved Moment and history; 54–60 the dashboard; 60–77 the shelf. The footage has no audio track. Android screenrecord metadata tracks were removed by a lossless video-only remux; the pixels and playback speed were not altered.
 
 ## Remaining external release gates
 
-Real Samsung purchase/restore requires configured RevenueCat and Samsung products plus a physical Samsung device; it was not tested in this emulator. No working purchase, account service, or public store listing is claimed without credentials and configuration. iOS project generation and Hermes export passed in the root verification run, but a native iOS binary was not compiled because full Xcode is absent.
+Real Samsung purchase/restore requires configured RevenueCat and Samsung products plus a physical Samsung device; it was not tested in this emulator. Firebase Authentication is configured and tested; real purchases and a public store listing remain unverified. iOS project generation and Hermes export passed in the root verification run, but a native iOS binary was not compiled because full Xcode is absent.
 
 Public-store distribution still requires owner commercial seller/account verification, a production signing identity, billing configuration, store review, and a public listing. The preview APK does not satisfy the hackathon's published-store requirement by itself.
+
+## Configured Firebase account verification
+
+The configured preview was compiled and installed on the same API 36 ARM64 emulator. Actual native account creation succeeded on the preceding `8dfd21c…` build. The signed-in state survived process force-stop and relaunch, including with Wi-Fi and mobile data disabled. Account deletion through the native UI succeeded; Firebase rejected the deleted identity on a subsequent sign-in attempt. Local sample projects remained. The disposable identity was removed, and the ReactNativeJS/AndroidRuntime error log was empty.
+
+The final `149e2ca…` APK incorporates the subsequent font-module refactor without changing the native font assets or authentication behavior. Actual sign-in, offline process restart persistence, native account deletion, and provider rejection after deletion passed again on this exact final APK. Its signature and 16 KiB zipalignment checks passed, and the native runtime error log was empty. Both disposable native identities were removed. Its final smoke results are recorded in [native account evidence](evidence/firebase-native-auth-result.json). No physical Samsung, store purchase, or reset-mail delivery success is implied by emulator account testing.

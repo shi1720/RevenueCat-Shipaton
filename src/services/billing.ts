@@ -21,6 +21,8 @@ let initialized = false;
 let identifiedUser: string | undefined;
 let queue: Promise<unknown> = Promise.resolve();
 let identityRevision = 0;
+let requestedIdentity: string | undefined;
+let identityRequested = false;
 
 // Serialize identity changes with transactions so one account never receives
 // another account's in-flight purchase result.
@@ -109,7 +111,9 @@ function hasStudio(info: CustomerInfo): boolean {
 
 /** Call on startup and every auth change; omission explicitly returns to anonymous identity. */
 export function initializeBilling(userId?: string): Promise<void> {
-  identityRevision++;
+  if (!identityRequested || requestedIdentity !== userId) identityRevision++;
+  identityRequested = true;
+  requestedIdentity = userId;
   return serial(async () => {
     await configure(userId);
   });

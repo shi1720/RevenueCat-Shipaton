@@ -116,15 +116,17 @@ export function Home({
   const openProjects = data.projects.filter((p) => p.status !== "finished");
   const sessions = data.projects.reduce((n, p) => n + p.sessionCount, 0);
   return (
-    <View style={{ gap: compact ? 25 : 32 }}>
+    <View style={{ gap: compact ? 18 : 32 }}>
       <View style={[common.row, { justifyContent: "space-between" }]}>
         <View style={{ gap: 7, flex: 1, minWidth: 0 }}>
-          <Text style={common.label}>YOUR LITTLE CREATIVE CORNER</Text>
+          {!compact && (
+            <Text style={common.label}>YOUR LITTLE CREATIVE CORNER</Text>
+          )}
           <Text
             accessibilityRole="header"
             style={[
               common.title,
-              { fontSize: compact ? 33 : 41, lineHeight: compact ? 40 : 49 },
+              { fontSize: compact ? 28 : 41, lineHeight: compact ? 34 : 49 },
             ]}
           >
             Good to have you back
@@ -143,23 +145,26 @@ export function Home({
           </View>
         )}
       </View>
-      <View style={[s.hero, compact && { padding: 22, minHeight: 250 }]}>
-        <View style={{ flex: 1, zIndex: 1, gap: 16 }}>
-          <View style={common.row}>
-            <View style={s.heroDot} />
-            <Text style={[common.label, { color: "#D1CCE9", fontSize: 9 }]}>
-              MAKE ROOM FOR MAKING
-            </Text>
-          </View>
+      <View style={[s.hero, compact && { padding: 20, minHeight: 0 }]}>
+        <View style={{ flex: 1, zIndex: 1, gap: compact ? 10 : 16 }}>
+          {!compact && (
+            <View style={common.row}>
+              <View style={s.heroDot} />
+              <Text style={[common.label, { color: "#D1CCE9", fontSize: 9 }]}>
+                MAKE ROOM FOR MAKING
+              </Text>
+            </View>
+          )}
           <Text
             style={[
               s.heroTitle,
-              { fontSize: compact ? 34 : 47, lineHeight: compact ? 39 : 53 },
+              { fontSize: compact ? 28 : 47, lineHeight: compact ? 32 : 53 },
             ]}
           >
             A little time.{"\n"}A little progress.
           </Text>
           <Text
+            numberOfLines={compact ? 2 : undefined}
             style={{
               fontFamily: font.regular,
               color: "#D4D0E4",
@@ -168,7 +173,9 @@ export function Home({
               maxWidth: 290,
             }}
           >
-            You don’t have to finish today.{"\n"}Just find your way back in.
+            {compact
+              ? project?.checkpoints[0].nextStep || "One small step is enough."
+              : "You don’t have to finish today.\nJust find your way back in."}
           </Text>
           <View style={{ alignSelf: "flex-start", marginTop: 4 }}>
             <Button
@@ -189,7 +196,7 @@ export function Home({
               icon={ArrowRight}
               style={{
                 backgroundColor: "#F2EDDB",
-                maxWidth: compact ? 290 : 360,
+                maxWidth: compact ? "100%" : 360,
               }}
               kind="secondary"
             />

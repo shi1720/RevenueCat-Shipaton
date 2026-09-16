@@ -2,124 +2,27 @@ import {
   createClient,
   processLock,
   type AuthChangeEvent,
-  type Session,
   type SupabaseClient,
 } from "@supabase/supabase-js";
 import { AppState, Platform } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import { nativeStorage } from "./secureAuthStorage";
+import * as firebase from "./firebaseAuth";
 import * as Crypto from "expo-crypto";
 
-export type { Session } from "@supabase/supabase-js";
+export interface Session {
+  user: { id: string; email?: string };
+}
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim();
 const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim();
-export const authConfigured = Boolean(supabaseUrl && supabaseKey);
+export const authConfigured =
+  firebase.firebaseConfigured || Boolean(supabaseUrl && supabaseKey);
+export const authProvider = firebase.firebaseConfigured
+  ? "firebase"
+  : supabaseUrl && supabaseKey
+    ? "supabase"
+    : "local";
 let client: SupabaseClient | undefined;
-
-type Manifest = { generation: string; count: number };
-const secureOptions = {
-  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-};
-const secureKey = (key: string) =>
-  `unpause.${key.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-function parseManifest(raw: string | null): Manifest | null {
-  if (!raw) return null;
-  const value: unknown = JSON.parse(raw);
-  if (
-    typeof value !== "object" ||
-    value === null ||
-    !("generation" in value) ||
-    !("count" in value) ||
-    typeof value.generation !== "string" ||
-    !/^[a-zA-Z0-9-]+$/.test(value.generation) ||
-    typeof value.count !== "number" ||
-    !Number.isInteger(value.count) ||
-    value.count < 1 ||
-    value.count > 1024
-  ) {
-    throw new Error(
-      "Saved account session could not be read. Your local projects are safe.",
-    );
-  }
-  return { generation: value.generation, count: value.count };
-}
-async function removeChunks(key: string, manifest: Manifest | null) {
-  if (!manifest) return;
-  await Promise.allSettled(
-    Array.from({ length: manifest.count }, (_, i) =>
-      SecureStore.deleteItemAsync(
-        `${key}.${manifest.generation}.${i}`,
-        secureOptions,
-      ),
-    ),
-  );
-}
-
-// Tokens are encrypted by the OS on native. A small atomic manifest switches
-// generations only after every chunk is durable, preserving old data on failure.
-// 400 Unicode codepoints remain below SecureStore's historical 2048-byte item
-// limit and never split a surrogate pair while crossing the native bridge.
-const nativeStorage = {
-  async getItem(rawKey: string): Promise<string | null> {
-    const key = secureKey(rawKey);
-    const manifest = parseManifest(
-      await SecureStore.getItemAsync(key, secureOptions),
-    );
-    if (!manifest) return null;
-    const chunks = await Promise.all(
-      Array.from({ length: manifest.count }, (_, i) =>
-        SecureStore.getItemAsync(
-          `${key}.${manifest.generation}.${i}`,
-          secureOptions,
-        ),
-      ),
-    );
-    if (chunks.some((chunk) => chunk === null))
-      throw new Error(
-        "Saved account session is incomplete. Your local projects are safe.",
-      );
-    return chunks.join("");
-  },
-  async setItem(rawKey: string, value: string): Promise<void> {
-    const key = secureKey(rawKey);
-    const previous = parseManifest(
-      await SecureStore.getItemAsync(key, secureOptions),
-    );
-    const characters = Array.from(value);
-    const manifest = {
-      generation: Crypto.randomUUID(),
-      count: Math.max(1, Math.ceil(characters.length / 400)),
-    };
-    if (manifest.count > 1024)
-      throw new Error("Account session exceeds secure storage limits.");
-    try {
-      for (let i = 0; i < manifest.count; i++) {
-        await SecureStore.setItemAsync(
-          `${key}.${manifest.generation}.${i}`,
-          characters.slice(i * 400, (i + 1) * 400).join(""),
-          secureOptions,
-        );
-      }
-      await SecureStore.setItemAsync(
-        key,
-        JSON.stringify(manifest),
-        secureOptions,
-      );
-    } catch (error) {
-      await removeChunks(key, manifest);
-      throw error;
-    }
-    await removeChunks(key, previous);
-  },
-  async removeItem(rawKey: string): Promise<void> {
-    const key = secureKey(rawKey);
-    const previous = parseManifest(
-      await SecureStore.getItemAsync(key, secureOptions),
-    );
-    await SecureStore.deleteItemAsync(key, secureOptions);
-    await removeChunks(key, previous);
-  },
-};
 
 function getClient(): SupabaseClient {
   if (!authConfigured)
@@ -208,6 +111,8 @@ function validatePassword(password: string) {
 
 export async function signUp(email: string, password: string) {
   validatePassword(password);
+  if (firebase.firebaseConfigured)
+    return firebase.signUp(validateEmail(email), password);
   const { data, error } = await getClient().auth.signUp({
     email: validateEmail(email),
     password,
@@ -218,6 +123,8 @@ export async function signUp(email: string, password: string) {
 }
 
 export async function signIn(email: string, password: string) {
+  if (firebase.firebaseConfigured)
+    return firebase.signIn(validateEmail(email), password);
   const { data, error } = await getClient().auth.signInWithPassword({
     email: validateEmail(email),
     password,
@@ -227,11 +134,13 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut(): Promise<void> {
+  if (firebase.firebaseConfigured) return firebase.signOut();
   const { error } = await getClient().auth.signOut({ scope: "local" });
   if (error) throw error;
 }
 
 export async function getSession(): Promise<Session | null> {
+  if (firebase.firebaseConfigured) return firebase.getSession();
   if (!authConfigured) return null;
   const { data, error } = await getClient().auth.getSession();
   if (error) throw error;
@@ -242,6 +151,7 @@ export async function getSession(): Promise<Session | null> {
 export function subscribeAuth(
   callback: (session: Session | null, event: AuthChangeEvent) => void,
 ): () => void {
+  if (firebase.firebaseConfigured) return firebase.subscribeAuth(callback);
   if (!authConfigured) return () => undefined;
   const { data } = getClient().auth.onAuthStateChange((event, session) =>
     callback(session, event),
@@ -250,6 +160,8 @@ export function subscribeAuth(
 }
 
 export async function resetPassword(email: string): Promise<void> {
+  if (firebase.firebaseConfigured)
+    return firebase.resetPassword(validateEmail(email));
   const { error } = await getClient().auth.resetPasswordForEmail(
     validateEmail(email),
     { redirectTo: callbackUrl(true) },
@@ -259,6 +171,7 @@ export async function resetPassword(email: string): Promise<void> {
 
 export async function updatePassword(password: string): Promise<void> {
   validatePassword(password);
+  if (firebase.firebaseConfigured) return firebase.updatePassword(password);
   const { error } = await getClient().auth.updateUser({ password });
   if (error) throw error;
 }
@@ -271,7 +184,8 @@ const handledCodes = new Map<
 export async function handleAuthUrl(
   rawUrl: string,
 ): Promise<{ handled: boolean; recovery: boolean }> {
-  if (!authConfigured) return { handled: false, recovery: false };
+  if (firebase.firebaseConfigured || !authConfigured)
+    return { handled: false, recovery: false };
   let url: URL;
   try {
     url = new URL(rawUrl);
@@ -316,6 +230,7 @@ export async function handleAuthUrl(
 
 /** Deletes the authenticated server account. Local project deletion remains an explicit separate action. */
 export async function deleteAccount(): Promise<void> {
+  if (firebase.firebaseConfigured) return firebase.deleteAccount();
   const service = getClient();
   const { data: sessionData, error: sessionError } =
     await service.auth.getSession();

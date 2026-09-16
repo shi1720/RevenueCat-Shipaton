@@ -16,11 +16,13 @@ import {
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
-import { DMSans_400Regular } from "@expo-google-fonts/dm-sans/400Regular";
-import { DMSans_500Medium } from "@expo-google-fonts/dm-sans/500Medium";
-import { DMSans_700Bold } from "@expo-google-fonts/dm-sans/700Bold";
-import { Fraunces_500Medium } from "@expo-google-fonts/fraunces/500Medium";
-import { Fraunces_500Medium_Italic } from "@expo-google-fonts/fraunces/500Medium_Italic";
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_700Bold,
+  Fraunces_500Medium,
+  Fraunces_500Medium_Italic,
+} from "./src/components/fontAssets";
 import * as Linking from "expo-linking";
 import {
   ArrowRight,
@@ -46,6 +48,7 @@ import {
 } from "./src/screens/Project";
 import { AccountForm, Legal, Paywall, Settings } from "./src/screens/Settings";
 import { Recovery } from "./src/screens/Recovery";
+import type { FormSafety } from "./src/hooks/useFormSafety";
 import { sampleData } from "./src/domain/samples";
 import { canCreateProject } from "./src/domain/projects";
 import {
@@ -111,6 +114,10 @@ function Workspace() {
   const [tab, setTab] = useState<Tab>("home");
   const [projectId, setProjectId] = useState<string | null>(null);
   const [sheet, setSheet] = useState<Sheet>(null);
+  const [formSafety, setFormSafety] = useState<FormSafety>({
+    dirty: false,
+    busy: false,
+  });
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -129,6 +136,41 @@ function Workspace() {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(""), 8500);
   }, []);
+  const requestCloseSheet = useCallback(() => {
+    if (formSafety.busy) {
+      notify("Please wait for this step to finish. Your draft is still here.");
+      return;
+    }
+    if (formSafety.dirty) {
+      setConfirmation({
+        title: "Discard your unsaved changes?",
+        text: "Your saved project stays as it is. The notes and photos in this draft will be discarded.",
+        action: async () => {
+          setSheet(null);
+        },
+      });
+      return;
+    }
+    setSheet(null);
+  }, [formSafety, notify]);
+  useEffect(() => {
+    setFormSafety({ dirty: false, busy: false });
+  }, [sheet]);
+  useEffect(() => {
+    if (Platform.OS !== "web" || !formSafety.dirty) return;
+    const preventLostDraft = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", preventLostDraft);
+    return () => window.removeEventListener("beforeunload", preventLostDraft);
+  }, [formSafety.dirty]);
+  useEffect(
+    () => () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [],
+  );
   const refreshStudio = useCallback(async () => {
     if (!billingConfigured) {
       setStudio(false);
@@ -139,10 +181,14 @@ function Workspace() {
   useEffect(() => {
     let live = true;
     let identityRevision = 0;
+    let previousUserId: string | null | undefined;
     const sync = (next: Session | null) => {
-      const revision = ++identityRevision;
       if (!live) return;
       setSession(next);
+      const nextId = next?.user.id ?? null;
+      if (previousUserId === nextId) return;
+      previousUserId = nextId;
+      const revision = ++identityRevision;
       setStudio(false);
       if (billingConfigured)
         void initializeBilling(next?.user.id)
@@ -244,7 +290,7 @@ function Workspace() {
         return true;
       }
       if (sheet) {
-        setSheet(null);
+        requestCloseSheet();
         return true;
       }
       if (projectId) {
@@ -258,7 +304,15 @@ function Workspace() {
       return false;
     });
     return () => sub.remove();
-  }, [confirmation, sheet, projectId, tab]);
+  }, [
+    confirmation,
+    confirmBusy,
+    sheet,
+    projectId,
+    tab,
+    requestCloseSheet,
+    notify,
+  ]);
   useEffect(() => {
     content.current?.scrollTo({ y: 0, animated: false });
   }, [tab, projectId]);
@@ -621,7 +675,7 @@ function Workspace() {
             Keyboard.dismiss();
             return;
           }
-          setSheet(null);
+          requestCloseSheet();
         }}
       >
         <KeyboardAvoidingView
@@ -652,7 +706,9 @@ function Workspace() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Close dialog"
-                onPress={() => setSheet(null)}
+                onPress={requestCloseSheet}
+                accessibilityState={{ disabled: formSafety.busy }}
+                disabled={formSafety.busy}
                 style={s.close}
               >
                 <X size={20} color={c.ink} />
@@ -688,15 +744,18 @@ function Workspace() {
                   notify={notify}
                   studio={studio}
                   paywall={() => setSheet("studio")}
+                  onSafetyChange={setFormSafety}
                 />
               ) : sheet === "checkpoint" && project ? (
                 <CheckpointForm
                   project={project}
                   done={() => setSheet(null)}
                   notify={notify}
+                  onSafetyChange={setFormSafety}
                 />
               ) : sheet === "account" || sheet === "recovery" ? (
                 <AccountForm
+                  onSafetyChange={setFormSafety}
                   recovery={sheet === "recovery"}
                   done={() => {
                     setSheet(null);
@@ -705,6 +764,7 @@ function Workspace() {
                 />
               ) : sheet === "studio" ? (
                 <Paywall
+                  onSafetyChange={setFormSafety}
                   studio={studio}
                   refresh={refreshStudio}
                   legal={setSheet}
@@ -989,8 +1049,8 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
   },
   addButton: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 12,
@@ -1040,8 +1100,8 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   close: {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
     borderRadius: 13,
     backgroundColor: "#ECEAE4",
     alignItems: "center",

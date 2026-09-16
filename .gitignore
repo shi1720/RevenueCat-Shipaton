@@ -57,3 +57,7 @@ artifacts/submission/rendered/
 supabase/.temp/
 dist-native/
 dist-galaxy/
+
+.firebase/
+firebase-debug.log
+firebase-debug.*.log

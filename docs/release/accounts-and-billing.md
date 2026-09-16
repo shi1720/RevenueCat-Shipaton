@@ -1,6 +1,6 @@
 # Accounts and Studio billing
 
-Unpause works locally with no credentials. Optional Supabase accounts establish a stable identity for RevenueCat purchases. Signing in does **not** upload or synchronize projects or photos. Studio is a single lifetime purchase; the app never grants a demo entitlement or treats a checkout attempt as success.
+Unpause works locally with no credentials. New configured builds use [Firebase accounts](firebase-accounts.md); the Supabase setup below remains an optional fallback for earlier configurations. Both establish a stable identity for RevenueCat purchases. Signing in does **not** upload or synchronize projects or photos. Studio is a single lifetime purchase; the app never grants a demo entitlement or treats a checkout attempt as success.
 
 Implementation: `src/services/auth.ts`, `src/services/billing.ts`, and `supabase/functions/delete-account/index.ts`. Configuration belongs to Shivam Gupta's own Supabase, RevenueCat, and store accounts. No external account, deployment, payment processor, store listing, or live purchase has been provisioned or verified by these files alone.
 

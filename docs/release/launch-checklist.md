@@ -55,7 +55,7 @@ This is an evidence checklist. An unchecked item is not a claim that the impleme
 - [ ] Protect saved projects during temporarily unavailable entitlement checks. Test the purchase identity after anonymous-to-signed-in transition.
 - [ ] Provide and test a legitimate judge-access mechanism; do not leave a general production bypass.
 
-## 5. Seller accounts, signing, and stores — external gates
+## 5. Seller accounts, signing, and stores - external gates
 
 - [ ] Shivam's Samsung seller identity/business/payout verification is approved. Check onboarding lead times now; code cannot bypass them.
 - [ ] Confirm app/package identity, versioning, signing key custody, and release owner. Keep signing assets outside Git.

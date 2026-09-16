@@ -17,6 +17,7 @@ export function useDraftPhotos(
   state.current.report = report;
   useEffect(() => {
     const value = state.current;
+    value.live = true;
     return () => {
       value.live = false;
       for (const uri of value.uris)

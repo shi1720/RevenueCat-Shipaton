@@ -8,7 +8,7 @@ Visit [Samsung Seller Portal](https://seller.samsungapps.com/) using your own Sa
 
 The app’s Galaxy package is **`com.shivamgupta.unpause.galaxy`**. Do not register the Google package for the Galaxy binary. If verification is delayed, RevenueCat lists **rc.onboard@samsung.com** as an onboarding contact. An optional draft is below; it has not been sent.
 
-> Subject: Shipaton 2026 — Galaxy Store onboarding for Unpause
+> Subject: Shipaton 2026: Galaxy Store onboarding for Unpause
 >
 > Hello Samsung onboarding team,
 >

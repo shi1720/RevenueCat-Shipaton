@@ -6,13 +6,13 @@ Reviewed September 16, 2026 against the actual source, unit/browser tests, deskt
 
 ## Ranked findings and disposition
 
-### Native verification follow-up — keyboard drafts and bounded history: fixed
+### Native verification follow-up: keyboard drafts and bounded history: fixed
 
 Android API 36 testing found that Back could dismiss a checkpoint modal while hiding the keyboard, losing an unsaved note. The final handler dismisses a visible keyboard first; emulator verification confirms the typed text and modal remain. Saving the checkpoint and force-stopping/relaunching also preserves the committed note.
 
 The large-history fixture exposed unbounded card rendering in project history and Moments. Both now show ten notes per page. New browser scenarios use a valid archive above 2 MB with 300 checkpoints, verify forward/backward pagination, bound visible card counts, and confirm reload persistence. The full suite now passes 93 unit/service tests and 20 browser scenarios. This is an engineering follow-up, not a revision of the historical advisory score below.
 
-### P1 — Large valid histories could become unreadable on Android: fixed and included in the rebuilt preview
+### P1: Large valid histories could become unreadable on Android: fixed and included in the rebuilt preview
 
 The original storage implementation wrote all JSON into one AsyncStorage row. A valid text-only project with 250 maximum-length checkpoints measured **2,280,661 bytes**, even without photos. That exceeds Android's commonly encountered SQLite CursorWindow single-row capacity. The schema permits 2,000 checkpoints per project and 500 projects, so this was an achievable data-growth failure, not merely malformed input. Existing tests mocked storage and could not expose a native row limit.
 
@@ -20,7 +20,7 @@ Fix implemented in `src/services/storage.ts`: native records now use Unicode-saf
 
 Verification: unit tests round-trip a record above 2 MB, bound every row, preserve old data after a failed pointer write, migrate legacy rows safely, reject missing chunks without overwrite, recover explicitly, and reject records above 20 MB before mutation. The final standalone Android preview also imported a 2,723,781-byte valid archive with 300 checkpoints and an embedded PNG through Android DocumentsUI, then preserved the latest note and image after force-stop/relaunch. This is actual emulator evidence for the large-row regression; physical-device storage exhaustion and injected native filesystem failures remain separate tests.
 
-### P1 — Photo deletion and canceled imports left private files behind: APIs fixed; UI integration added during review
+### P1: Photo deletion and canceled imports left private files behind: APIs fixed; UI integration added during review
 
 Deleting/erasing/replacing project records originally removed their URIs but not native `unpause-photos` files. Import created native photos before the replace-confirmation dialog, so Cancel also left files. A failed import photo write could leave a partially written file. Repeatedly choosing draft photos could grow storage indefinitely. These were privacy and capacity problems; “erase local projects” should not leave reachable app-owned photo files indefinitely.
 
@@ -28,7 +28,7 @@ Deleting/erasing/replacing project records originally removed their URIs but not
 
 Release acceptance: verify on a native filesystem that project deletion, full erase, import replacement, canceled import, failed record save, abandoned camera/library draft, and changed draft photo remove only the correct files. Never prune before the record commit. Keep a current store snapshot rather than a stale React closure when deciding which photos are referenced. Cleanup errors after a committed save must not be presented as if the record write rolled back.
 
-### P1 — Full photo backups could hit a limit with no clean recovery path: bounded fix implemented during review
+### P1: Full photo backups could hit a limit with no clean recovery path: bounded fix implemented during review
 
 At the time of the finding, native photo storage could grow beyond 30 MB while `exportBackup` refused a serialized backup above 30 MB. A cover photo that also appeared in checkpoint history was embedded repeatedly in the JSON. Several photos near the 5 MB per-photo limit could exhaust the backup budget. The error suggested individual project handoffs, but `exportProject` created text without photos, and no old-checkpoint-photo removal control was visible. Users could have been forced to discard project history to make a complete backup fit.
 
@@ -36,17 +36,17 @@ Recommended fix: enforce a portable-backup size budget before accepting addition
 
 Implemented response: native `saveData` now calls `assertPortableBudget` before writing any row. It estimates compact JSON plus base64-encoded file sizes per reference, including repeated cover/history references, and refuses changes above **28 MB** to reserve room below the 30 MB export limit. File sizes are memoized; photos are not read into memory just for estimation. Web's entire embedded record is already capped at 20 MB. Exports now use compact JSON so their size follows this estimate. Cover/checkpoint photo removal controls are implemented. Three additional tests verify repeated-reference counting, no mutation on budget failure, acceptance below the limit, and missing-file errors. This protects new commits; an already damaged or legacy over-budget workspace still needs deliberate recovery, and file loss outside the app cannot be repaired by a size estimate.
 
-### P1 — Pitch promised selectable energy while Home ignored energy: fixed during review
+### P1: Pitch promised selectable energy while Home ignored energy: fixed during review
 
 The original Home called `suggestProjects(projects, minutes)` with no energy state/control. The pure function and unit tests supported energy, so those tests passed even though the feature described in the demo, listing, and business plan was missing from the experience. Any/Gentle/Steady/Focused energy controls now pass the chosen value, and energy filtering is covered by the passing real-browser scenarios.
 
-### P1 — Required external release evidence is still missing: operational gate, not an implementation defect
+### P1: Required external release evidence is still missing: operational gate, not an implementation defect
 
 The general competition requires a new public eligible-store release, US availability, functioning RevenueCat-powered monetization, and demonstrated functionality. A web preview or debug-signed APK does not establish those conditions. The prepared docs correctly distinguish them. No live store URL, real purchase/restore evidence, public demo video, or completed Devpost submission was available during this review. These cannot be replaced by more code or by giving a high internal score.
 
 Store/commercial onboarding, owner-controlled credentials, physical Galaxy billing verification, final signing, public policy/support pages, and submission must be completed and evidenced. The prepared script has an explicit truthful fallback when checkout remains unavailable. Keep it. [Official entry requirements](https://revenuecat-shipaton-2026.devpost.com/rules).
 
-### P2 — Sample mode sent a new user directly to a paywall: transition added during review
+### P2: Sample mode sent a new user directly to a paywall: transition added during review
 
 The original sample studio had three unfinished projects, occupying the free allowance. Clicking New project after exploring the product opened Studio before the user had created a real project. The only obvious way to start fresh was inside Settings. This undermined the strongest acquisition moment and could feel like a payment requirement to try the app.
 
@@ -54,21 +54,21 @@ Add a prominent, explicit “Start my studio” transition in sample mode. Confi
 
 The root added an explicit confirmation when transitioning from sample data to creating a real project. Verify that modified sample content is clearly described before removal and that real projects survive.
 
-### P2 — Notification taps did not return to the referenced project: handler implemented; native delivery unverified
+### P2: Notification taps did not return to the referenced project: handler implemented; native delivery unverified
 
 Reminder payloads already include a project ID, but the root originally had no notification-response handler. Tapping a reminder would open the application without restoring its specific context. Cold/warm response handling is now integrated. Actual native notification scheduling, delivery, and tap behavior remain untested. Verify deleted projects, stale IDs, app restart, and permission denial on native hardware; browser tests and an emulator cold launch cannot prove notifications.
 
-### P2 — Import permits more free open projects: document a deliberate grace policy
+### P2: Import permits more free open projects: document a deliberate grace policy
 
 Imports do not contain an accepted Studio entitlement; unknown entitlement fields are stripped by the data schema, and billing reads real RevenueCat data. However, a valid backup may contain more than three open projects, and those existing projects remain resumable/editable. Free creation/reopen is capped separately. A technically sophisticated user can construct a larger backup without purchasing.
 
 This is a local-access licensing tradeoff, not a server authorization vulnerability: there is no paid cloud operation or sensitive shared resource. Preserve imported data and state the policy explicitly. If strict paid limits are commercially necessary, let users choose which three projects are active while keeping all other imported records readable/exportable. Never silently discard records or mark an import as a verified purchase. Local code/data can always be modified on a user-controlled device; expensive client DRM is not the priority.
 
-### P2 — Technical limits and “unlimited” need consistent user-facing qualification
+### P2: Technical limits and “unlimited” need consistent user-facing qualification
 
 The app schema has 500-project and 2,000-checkpoint limits, records now cap at 20 MB, photos cap at 5 MB, and backups at 30 MB. Paywall copy says unlimited projects/history with a device-storage caveat. The business plan mentions technical limits, but a paying user should be able to discover practical limits before accumulating an unexportable archive. Replace vague capacity errors with concrete next steps and avoid suggesting a normal backup includes a draft that failed to save.
 
-### P2 — Required screenshot evidence was not yet final
+### P2: Required screenshot evidence was not yet final
 
 I viewed `artifacts/screenshots/desktop-dashboard.png` and `mobile-dashboard.png`. The desktop composition is balanced and clear; typography, illustration, and palette are notably cohesive. The phone image is attractive but spends much of the first viewport on the hero, so the actual next-step card is below the fold. A shorter mobile hero would show the utility earlier.
 
@@ -121,7 +121,7 @@ Ignoring external credentials, the implementation is approximately **7.4/10** at
 
 The recommendation at the original review cutoff was to verify the integrated P1 fixes through final UI/native flows, rerun the full suite, and then prioritize the external release path and authentic user feedback. The following addendum records subsequent progress without changing the historical score.
 
-## Final verification addendum — September 16, 2026
+## Final verification addendum: September 16, 2026
 
 This documentation-only update records final results supplied by the primary implementation and native-build agents. It does not claim that this reviewer independently repeated those runs. The earlier **7.4/10** subjective implementation assessment is unchanged; successful checks are evidence of resolved defects, not a reason to inflate a historical judge score.
 

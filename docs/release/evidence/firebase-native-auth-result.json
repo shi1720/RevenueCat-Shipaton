@@ -1,0 +1,26 @@
+{
+  "at": "2026-09-16T13:43:27.261Z",
+  "apkSha256": "8dfd21c70145503115877dbb1476de343fd96e8ab9d1c40f6a3ad569d14cb58e",
+  "device": "API36 Google APIs ARM64 emulator",
+  "checks": [
+    "Actual native UI account creation succeeds",
+    "Signed-in state survives force-stop and relaunch",
+    "Signed-in state survives offline force-stop and relaunch",
+    "Actual native UI account deletion succeeds",
+    "Provider rejects sign-in after account deletion",
+    "Local sample studio remains after account deletion"
+  ],
+  "testIdentityDeleted": true,
+  "physicalSamsungTested": false,
+  "finalApkSha256": "149e2ca14efabba7139459d0627d7f82ada7840fcf1d44f89b004b61fec3c842",
+  "finalApkChecks": [
+    "Actual native UI sign-in using a fresh reserved synthetic account",
+    "Signed-in state survives offline process force-stop and relaunch",
+    "Native UI account deletion succeeds; provider subsequently rejects sign-in",
+    "Local sample studio remains",
+    "APK signature verification and 16KiB zipalignment pass"
+  ],
+  "finalTestIdentityDeleted": true,
+  "finalCheckedAt": "2026-09-16T13:50:20.578Z",
+  "runtimeErrorLogEmpty": true
+}

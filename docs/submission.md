@@ -1,85 +1,89 @@
-# Unpause — submission and demo kit
+# Unpause submission and demo kit
 
-**Entrant and creator:** Shivam Gupta  
-**Tagline:** Leave yourself a way back.  
-**One sentence:** Unpause remembers the next tiny step in an unfinished hobby, so a little free time becomes making time.
+**Creator:** Shivam Gupta
 
-This is prepared submission copy. Publish it only after the release gates in [the launch checklist](release/launch-checklist.md) are satisfied. Do not call an unconfigured purchase, local preview, or source export a live store launch. Official requirements and sources are recorded in [hackathon research](research/hackathon.md).
+**Tagline:** Leave yourself a way back.
 
-## Project description
+**Pitch:** Unpause saves the next tiny step in an unfinished hobby, then helps you find a project that fits the time and energy you have.
 
-Half-finished projects often come with a second project: remembering where you stopped. The materials have moved, the next step is unclear, and a short pocket of free time disappears before making begins.
+The complete Devpost story, testing instructions, YouTube metadata, and category fields are in [submission-fields.md](submission-fields.md). Use that file for form entry. This file is the recording and narration guide.
 
-Unpause gives physical hobbies a handoff. Save a photo, the stopping point, one next action, and where the materials live. Later, choose the time and energy you have. Unpause surfaces projects that fit and puts the saved context back in your hands. Start a quiet session, then leave a fresh checkpoint or mark the project finished.
+## Finished narrated export
 
-The core experience works locally without an account. Free users can keep three unfinished projects; finished projects and their histories remain available. Studio unlocks unlimited unfinished projects through a one-time RevenueCat-managed purchase. Export/import keeps data portable. Optional account access does not imply cloud synchronization.
+The completed [narrated MP4](../artifacts/submission/Unpause-demo-narrated.mp4) is 77.792 seconds at 1920 × 1080 with AAC audio and visible AI narration disclosure. [SRT captions](../artifacts/submission/Unpause-demo-narrated.srt) accompany the burned captions. See [video evidence](release/video-evidence.md) for verification, editing details, and the reusable generation command.
 
-The product's distinction is the return ritual: time available, remembered physical context, and one doable next action. We are testing that focused experience against existing craft trackers and simple notes. We do not yet claim customer traction, proven revenue, or time savings.
+The web experience is available at [unpause-studio.web.app](https://unpause-studio.web.app). The [public YouTube demo](https://www.youtube.com/watch?v=jXpOlvDShRY) has completed processing and playback verification. Store publication is a separate release gate.
 
-## Verbatim voiceover
+## Current footage and truthful scope
 
-Approximately 215 words. Aim for 105–115 seconds with short pauses. Practice against the real capture; keep the exported video strictly below two minutes.
+The source clip is `artifacts/submission/unpause-native-walkthrough.mp4`: 76.993 seconds of actual Android emulator interactions. It shows a resume card, session timer, checkpoint capture, history, dashboard, and shelf. It does not show a real purchase or an approved store build. See [native build evidence](release/native-build-evidence.md).
 
-> Hi, I'm Shivam Gupta, creator of Unpause.
+The narration below fits this current preview. It uses a clearly synthetic third-person voice and credits Shivam as creator. It does not claim to reproduce his voice. Disclose synthetic narration in the public video description. If Shivam records the voiceover himself, he may replace only the opening with: **"I'm Shivam Gupta, creator of Unpause. Leave yourself a way back."**
+
+## Verbatim current-preview narration
+
+157 words. Target about 77 seconds at an unhurried pace, with pauses between sections. Keep the final export below two minutes.
+
+> Meet Unpause, created by Shivam Gupta. Leave yourself a way back.
 >
-> Imagine opening a drawer and finding the project you loved three weeks ago. You have ten minutes. But where did you stop? What comes next? Where are the materials?
+> You have ten free minutes, but the next step is unclear and the materials have moved. Unpause keeps the context you need together.
 >
-> Sometimes, by the time you've remembered, your free time is gone.
+> Before stopping, leave yourself a handoff: what you finished, one small next action, and where the pieces live. Here, a new checkpoint gives the next session a clear place to begin.
 >
-> Unpause is a way to leave your future self a handoff.
+> Add a photo when it helps. Your notes and photos stay on your device.
 >
-> Before stopping, save a photo, one small next action, and where everything lives. Here, the tote is sewn. The straps are ready. Next time, I just need to pin them.
+> Each return becomes part of the project's story. You can revisit earlier notes, keep making, or finish the project. The goal is to make the next beginning easier.
 >
-> Now I have ten minutes and gentle energy. Unpause shows projects that fit. I open the tote and the context is right here: what I finished, what to do next, and where to find the materials.
+> Choose the time and energy you have. Find a project with a step that fits.
 >
-> I start a session. When I stop, I save what changed and leave the next tiny step. The project's history stays together. When it's finished, it makes room for something new.
->
-> The core app works locally without signup. Backups are yours to export. Three unfinished projects are free. Studio unlocks unlimited projects with one lifetime purchase, powered by RevenueCat.
->
-> This is a focused consumer utility, built around returning to things you care about. The business starts with a clear free tier and a simple paid upgrade.
->
-> Unpause. Leave yourself a way back.
+> Three unfinished projects are free. Studio is the planned lifetime upgrade through RevenueCat. Live purchases and store release are still pending. Backups stay free, and your memories remain yours. Unpause. Leave yourself a way back.
 
-**Truthfulness gate:** The above is designed for the completed, configured build. If real checkout is still blocked when recording, replace the purchase sentence verbatim with: **“Studio is our planned one-time upgrade through RevenueCat. This preview shows the integration, and store purchase verification is still pending.”** A candid preview does not satisfy the competition's public-release requirement. Do not edit together a mock payment success.
+Machine-readable text and timing are available in [submission-narration.json](submission-narration.json). The plain voiceover script is [submission-narration.txt](submission-narration.txt).
 
-## Shot timeline
+## Shot and caption timing
 
-| Time | Screen/action | Production note |
+| Time | Existing footage | Narration purpose |
 | --- | --- | --- |
-| 0–8s | Shivam introduces Unpause; quick shot of an actual unfinished object | An illustrative setup is enough. Do not claim it is a real founder problem unless true. |
-| 8–23s | Drawer/object, then Unpause dashboard | Match the object to the project shown. |
-| 23–40s | New project: photo, title, next action, materials | Pre-type some fields or trim typing time. Show a real saved record. |
-| 40–58s | Set 10 minutes and gentle energy; open project | Show why the chosen project fits. Use a prepared dataset with clear contrasts. |
-| 58–75s | Read resume card; start session | Capture on a real device. Never suggest a timer measures skill or productivity. |
-| 75–91s | Save checkpoint; show newest history entry; finish project | Make one tiny physical step off-screen or cut honestly between moments. Do not fake elapsed time. |
-| 91–105s | Settings export, then Studio offering | Show actual localized price and RevenueCat/store flow when configured. Mask personal account details. |
-| 105–115s | Finished shelf; logo and tagline | Hold clean end frame for two seconds. |
+| 0-5s | Next step on the project detail | Name, creator credit, promise |
+| 5-17s | Running session | Ten-minute problem and saved context |
+| 17-33s | Checkpoint being typed | Where you stopped, next action, materials |
+| 33-40s | Photo controls and checkpoint save | Optional photos and local storage |
+| 40-54s | Saved Moment and history | Continuity across returns |
+| 54-60s | Dashboard | Available time and energy |
+| 60-77s | Project shelf | Free tier, RevenueCat plan, current release status, tagline |
 
-Record narration separately in a quiet room. Use direct device recording; avoid tiny text inside a decorative phone frame. Crop deliberately, keep taps understandable, add accurate English captions, and use music only if properly licensed. A short silent screen capture with a clean voiceover is sufficient.
+Use captions that match the spoken words. Keep no more than two lines visible at a time, with a solid or sufficiently opaque background where needed. Place captions below the app image or in a safe area that does not cover the current action. Do not speed through checkpoint entry while narrating unrelated features. Use no unlicensed music or third-party decorative branding.
 
-## Proof to capture
+The source has no audio track. The narration can be assembled as timed segments with natural pauses. If speech takes longer than the available segment, simplify the copy or add a short, clearly static hold on the relevant screen. Keep app actions in their original order. Do not alter a timer or portray an edit as elapsed making time.
 
-- A new project saved and still present after a full app restart.
-- A session followed by a checkpoint and updated history.
-- A finished project releasing a free-tier slot.
-- A real store offering, one-time purchase result, restore, and RevenueCat entitlement evidence. Keep financial/account identifiers private.
-- The public store page accessible in the US, with a fresh installed build matching the video.
-- Any revenue or feedback quoted in submission supported by actual records and permission to quote.
+## Public description and title
 
-## Submission fields to complete externally
+Use the prepared title and description in [submission-fields.md](submission-fields.md). State that the footage is an Android emulator preview, that narration uses a synthetic voice, and that store release and live purchase verification remain pending. Append only verified public links.
 
-| Field | Required evidence |
-| --- | --- |
-| Public store URL | Approved, published Galaxy/App Store/Google Play listing; not a beta link |
-| RevenueCat project ID | Actual project from Shivam's dashboard |
-| Public video | YouTube or Vimeo link, under two minutes, viewable without access requests |
-| Judge access | Tested promo/trial or other compliant access mechanism; keep available through required judging period |
-| App icon and screenshots | Exported required dimensions from the final app; no fake UI |
-| Category selection | Match implemented functionality and verified eligibility |
-| Final submission | Devpost confirmation that all required steps are complete and entry is Submitted |
+## Upgrade to a release submission later
 
-Recommended category fit is Design, HAMM, and Galaxy, subject to final criteria and eligibility. Grand Prize depends on real revenue and sustainable growth, not a claim that a polished demo must win. Explain Galaxy optimization using only demonstrated behavior. See official [rules](https://revenuecat-shipaton-2026.devpost.com/rules) and [submission walkthrough](https://www.revenuecat.com/blog/engineering/how-to-submit-your-app-for-shipaton).
+The current honest preview can explain the product, but it does not remove the competition's publication or monetization requirements. After the release gates are actually satisfied:
 
-## Honest build attribution
+1. Capture the installed public store build and verify it behaves as described.
+2. Show a real configured Studio offering, localized price, store transaction, and verified entitlement. Hide personal account and payment details.
+3. Provide a working trial or judge promo code, and test the exact access instructions.
+4. Update the final narration segment only with demonstrated facts. A suitable replacement after verification is: **"Three unfinished projects are free. Studio unlocks more room with one lifetime purchase through RevenueCat. Backups stay free, and your memories remain yours. Unpause. Leave yourself a way back."**
+5. Check the final public video URL without signing in, and provide the actual approved store URL on Devpost.
 
-Use **“Created by Shivam Gupta”** for normal product attribution. If asked about development process, use: **“I directed the product and built Unpause with AI-assisted research, implementation, and testing. I made the final product and release decisions.”** Adapt that statement to Shivam's actual involvement at submission; do not invent specific manual coding, interviews, or recordings that did not happen.
+Do not use an unavailable checkout screen as evidence of working monetization. Do not invent purchases, store approval, users, revenue, or a personal founder story.
+
+## Required final assets and declarations
+
+- A qualifying public store URL and accurate first-release date.
+- Actual RevenueCat project and qualifying monetization evidence.
+- Public YouTube or Vimeo video shorter than two minutes.
+- Required 1024 × 1024 icon and 1179 × 2556 screenshot without a device frame.
+- Tested judge access to all premium features.
+- Eligibility and category declarations based on Shivam's actual circumstances.
+- Completed Devpost submission, not merely a saved draft.
+
+See [hackathon research](research/hackathon.md), [owner setup](OWNER_SETUP.md), and [launch checklist](release/launch-checklist.md). The official rules control over a draft, this document, or the event overview.
+
+## Attribution
+
+Use **"Created by Shivam Gupta"** for product credit. If asked about the development process, use **"Created by Shivam Gupta with AI-assisted research, implementation, and testing."** Add specific manual work only when it actually occurred. The recorded interactions, example projects, and synthetic voice should remain accurately labeled.

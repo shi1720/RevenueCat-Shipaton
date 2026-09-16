@@ -52,7 +52,7 @@ function notes(s, value) { s.speakerNotes.textFrame.setText(value); }
   text(s, 'Leave yourself a way back.', 69, 383, 1070, 70, 43, { color: C.white });
   text(s, 'A pocket handoff for unfinished hobbies', 70, 474, 1000, 45, 26, { color: '#E4E1F4' });
   text(s, 'Shivam Gupta · Creator', 70, 624, 850, 34, 22, { color: C.white });
-  notes(s, 'Unpause pitch. Creator: Shivam Gupta. Product and pricing hypothesis, September 2026. This deck does not claim a public release, customer traction, or verified paid conversion.');
+  notes(s, 'Unpause pitch. Creator: Shivam Gupta. Product and pricing hypothesis, September 2026. Live web app: https://unpause-studio.web.app . Public Android emulator demo: https://www.youtube.com/watch?v=jXpOlvDShRY . No qualifying public store release, customer traction, or verified paid conversion is claimed.');
 }
 // 2. Pain made concrete, with honest qualitative evidence.
 {
@@ -98,7 +98,7 @@ function notes(s, value) { s.speakerNotes.textFrame.setText(value); }
     text(s, steps[i][1], x, 452, 274, 72, 27, { bold: true });
     text(s, steps[i][2], x, 540, 274, 84, 22, { color: C.muted });
   }
-  notes(s, 'Product mechanics: suggestProjects filters by next-step duration and energy, excludes finished projects, and ranks blockers after ready work. Checkpoint history stores context and cumulative session minutes. UI implementation and final device behavior require release verification.');
+  notes(s, 'Product mechanics: suggestProjects filters by next-step duration and energy, excludes finished projects, and ranks blockers after ready work. Checkpoint history stores context and cumulative session minutes. The core browser and native emulator loop is verified. Current automated checks: 101 unit tests and 30 desktop/mobile browser scenarios. Final physical-device behavior remains a release check.');
 }
 // 5. Honest competitive comparison as an editable native table.
 {
@@ -126,13 +126,14 @@ function notes(s, value) { s.speakerNotes.textFrame.setText(value); }
 }
 // 7. Transparent release status and useful validation.
 {
-  const s = base(7); title(s, 'Built for a real release');
-  text(s, 'IMPLEMENTATION', 71, 245, 520, 35, 18, { bold: true, color: C.violet });
-  text(s, 'React Native + Expo\nLocal handoffs and history\nValidated backup import\nRevenueCat lifetime integration', 71, 299, 535, 222, 28, { lineSpacing: 1.25 });
+  const s = base(7); title(s, 'Live web app. Native preview.');
+  text(s, 'VERIFIED TODAY', 71, 245, 520, 35, 18, { bold: true, color: C.violet });
+  text(s, 'Live web app + Android preview\nFirebase account lifecycle\n101 unit + 30 browser tests\nLocal projects + portable backups', 71, 299, 535, 222, 27, { lineSpacing: 1.25 });
   text(s, 'RELEASE GATES', 680, 245, 520, 35, 18, { bold: true, color: C.violet });
-  text(s, 'Seller and product configuration\nReal Galaxy purchase testing\nSigning and store approval\nDevice recording and submission', 680, 299, 535, 222, 28, { lineSpacing: 1.25 });
-  text(s, 'Next proof: a maker returns to their own project because the handoff helped.', 72, 578, 1128, 72, 30, { typeface: 'Georgia' });
-  notes(s, 'Status snapshot September 16, 2026. Source/integration claims refer to repository implementation, not public availability or passed store certification. Optional Supabase identity does not synchronize projects. No customer traction claimed. Galaxy publication requires real account approval, physical-device billing test, and public store release. Official event rules: https://revenuecat-shipaton-2026.devpost.com/rules . Release gates documented in docs/release/launch-checklist.md.');
+  text(s, 'Live RevenueCat purchases\nPurchase-data deletion backend\nPhysical Galaxy verification\nSigned release + store approval', 680, 299, 535, 222, 27, { lineSpacing: 1.25 });
+  text(s, 'Try: https://unpause-studio.web.app', 72, 563, 1128, 38, 25, { color: C.violet });
+  text(s, 'Watch: https://www.youtube.com/watch?v=jXpOlvDShRY', 72, 610, 1128, 38, 23, { color: C.violet });
+  notes(s, 'Status snapshot September 16, 2026. The public web app is live at https://unpause-studio.web.app . Public narrated Android emulator demo: https://www.youtube.com/watch?v=jXpOlvDShRY . Real hosted Firebase signup, reload persistence, sign-out, sign-in, account deletion, and rejection after deletion passed. Local projects survive account deletion. Firebase is primary, with Supabase a configurable fallback. Accounts do not synchronize projects. 101 unit tests and 30 browser scenarios pass. Android preview exists. iOS source and bundle configuration are prepared but no compiled iOS binary is claimed. Native physical-device auth persistence and password-reset email delivery still need acceptance evidence. No customer traction claimed. Galaxy publication requires real account approval, physical-device billing test, purchase-profile deletion backend, and public store release. Official event rules: https://revenuecat-shipaton-2026.devpost.com/rules . Release gates documented in docs/release/launch-checklist.md.');
 }
 const candidate = path.join(tmp, 'candidate.pptx');
 await (await PresentationFile.exportPptx(p)).save(candidate);

@@ -70,6 +70,10 @@ export function Button({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={title}
+      accessibilityState={{
+        disabled: Boolean(disabled || busy),
+        busy: Boolean(busy),
+      }}
       testID={testID}
       disabled={disabled || busy}
       onPress={onPress}
@@ -182,7 +186,12 @@ const s = StyleSheet.create({
   },
   primary: { backgroundColor: c.purple },
   secondary: { backgroundColor: c.paper, borderWidth: 1, borderColor: c.line },
-  buttonText: { fontFamily: font.bold, fontSize: 13 },
+  buttonText: {
+    fontFamily: font.bold,
+    fontSize: 13,
+    flexShrink: 1,
+    textAlign: "center",
+  },
   fieldLabel: { fontFamily: font.medium, color: c.ink, fontSize: 13 },
   input: {
     backgroundColor: "#F9F8F5",
@@ -197,7 +206,7 @@ const s = StyleSheet.create({
   },
   chip: {
     paddingHorizontal: 16,
-    minHeight: 40,
+    minHeight: 44,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: c.line,

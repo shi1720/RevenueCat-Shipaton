@@ -1,0 +1,19 @@
+{
+  "at": "2026-09-16T13:43:47.523Z",
+  "base": "https://unpause-studio.web.app",
+  "checks": [
+    "Five hosted TTF binaries have valid content, and all five font faces load",
+    "Live UI account creation and immediate sign-in",
+    "Signed-in session persists across reload",
+    "Wrong-password error is actionable and does not sign in",
+    "Sign out and sign back in through live UI",
+    "Live UI account deletion succeeds",
+    "Deleted account sign-in is rejected by Firebase",
+    "Account deletion preserves local sample projects",
+    "All public policy/contact pages return 200 and fit mobile",
+    "Hosted create/session/reload/checkpoint/finish lifecycle at 390px",
+    "Hosted create/session/reload/checkpoint/finish lifecycle at 1280px"
+  ],
+  "browserErrors": [],
+  "passed": true
+}

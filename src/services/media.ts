@@ -431,7 +431,7 @@ export async function importBackup(): Promise<AppData | null> {
 export async function exportProject(project: Project): Promise<void> {
   const latest = project.checkpoints[0];
   const text = [
-    `${project.title} — Unpause project handoff`,
+    `${project.title}: Unpause project handoff`,
     "",
     `${project.category} · ${project.status}`,
     project.description,
